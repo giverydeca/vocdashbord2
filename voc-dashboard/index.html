@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VOC分析ダッシュボード</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -23,7 +23,8 @@
     .kpi-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin:24px 40px}
     .kpi-card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e1e8ed;display:flex;align-items:center;gap:14px;transition:all .2s}
     .kpi-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);border-color:#3498db}
-    .kpi-icon{font-size:36px}.kpi-label{font-size:12px;color:#7f8c8d;margin-bottom:4px;font-weight:500}
+    .kpi-icon{font-size:36px}
+    .kpi-label{font-size:12px;color:#7f8c8d;margin-bottom:4px;font-weight:500}
     .kpi-value{font-size:26px;font-weight:700;color:#2c3e50}
     .charts-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px;margin:24px 40px}
     .chart-container{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e1e8ed}
@@ -44,9 +45,6 @@
     .badge{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;display:inline-block}
     .badge-resolved{background:#d4edda;color:#155724}
     .badge-unresolved{background:#fff3cd;color:#856404}
-    .badge-high{background:#f8d7da;color:#721c24}
-    .badge-mid{background:#fff3cd;color:#856404}
-    .badge-low{background:#d1ecf1;color:#0c5460}
     .pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:16px;flex-wrap:wrap}
     .page-btn{padding:6px 12px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-size:13px}
     .page-btn.active{background:#667eea;color:#fff;border-color:#667eea}
@@ -62,33 +60,17 @@
     .modal-section{margin-top:16px}
     .modal-section h3{font-size:15px;margin-bottom:8px;color:#444}
     .conversation-box{background:#f8f9fa;padding:14px;border-radius:8px;white-space:pre-wrap;font-size:13px;line-height:1.8;max-height:300px;overflow-y:auto}
-    .op-card{background:#fff;padding:18px;border-radius:8px;border:2px solid #f0f0f0;transition:all .3s;cursor:pointer}
-    .op-card:hover{border-color:#667eea;background:#f8f9ff;transform:translateY(-2px)}
-    .op-name{font-size:18px;font-weight:700;color:#2c3e50;margin-bottom:14px;text-align:center}
-    .op-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    .op-stat-label{font-size:11px;color:#888;margin-bottom:3px}
-    .op-stat-value{font-size:20px;font-weight:700;color:#2c3e50}
-    .score-bar{background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden;margin-top:8px}
-    .score-fill{height:100%;background:linear-gradient(90deg,#667eea,#4BC0C0);transition:width .5s}
-    .op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-    .voice-tabs{display:flex;gap:8px;margin-bottom:14px}
-    .voice-tab{padding:7px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;font-weight:500}
-    .voice-tab.active{background:#667eea;color:#fff;border-color:#667eea}
-    .voice-item{padding:14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:10px}
-    .voice-text{font-size:14px;color:#333;margin-bottom:6px;font-style:italic}
-    .voice-meta{font-size:12px;color:#888}
     .spinner{border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite;margin:40px auto}
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     .empty{text-align:center;padding:40px;color:#aaa;font-size:15px}
-    .rank-table{width:100%}
-    .rank-num{width:40px;text-align:center;font-weight:700;color:#667eea}
     .note{font-size:12px;color:#666;background:#f7faff;border:1px solid #e1e8ed;padding:10px 12px;border-radius:8px}
     .pill{display:inline-block;padding:3px 10px;border-radius:999px;background:#eef2ff;color:#3f51b5;font-size:12px;font-weight:600}
-    @media(max-width:900px){#tab-painpoint>div:not(.kpi-section){grid-template-columns:1fr!important}}
     @media(max-width:768px){
       .kpi-section,.charts-section{grid-template-columns:1fr;margin:16px}
-      .section{margin:16px}.header{flex-direction:column;gap:12px;padding:16px}
-      .filters{flex-direction:column}.filter-select,.filter-input{width:100%}
+      .section{margin:16px}
+      .header{flex-direction:column;gap:12px;padding:16px}
+      .filters{flex-direction:column}
+      .filter-select,.filter-input{width:100%}
     }
   </style>
 </head>
@@ -116,24 +98,24 @@
   <div id="errorArea" style="display:none;margin:40px;padding:40px;text-align:center;background:#fff3f3;border:2px solid #ffaaaa;border-radius:12px;">
     <div style="font-size:48px">⚠️</div>
     <p style="color:#c00;font-size:18px;margin:16px 0">データの読み込みに失敗しました</p>
-    <p style="color:#666;font-size:14px"><code>data/all_merged.csv</code> をプロジェクトフォルダに配置してください</p>
-    <p style="color:#888;font-size:13px;margin-top:8px">※ ローカルで開く場合は <code>python -m http.server</code> でサーバーを起動してください</p>
+    <p style="color:#666;font-size:14px"><code>data/all_merged.csv</code> を配置してください</p>
+    <p style="color:#888;font-size:13px;margin-top:8px">※ ローカルで開く場合は <code>python -m http.server</code> でサーバー起動</p>
   </div>
 
-  <!-- ダッシュボード -->
+  <!-- Dashboard -->
   <div id="tab-dashboard" class="tab-content active">
     <section class="kpi-section">
-      <div class="kpi-card"><div class="kpi-icon">📝</div><div><div class="kpi-label">総通話件数</div><div class="kpi-value" id="kpi-total">-</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">📝</div><div><div class="kpi-label">総件数</div><div class="kpi-value" id="kpi-total">-</div></div></div>
       <div class="kpi-card"><div class="kpi-icon">✅</div><div><div class="kpi-label">解決率</div><div class="kpi-value" id="kpi-resolve">-</div></div></div>
       <div class="kpi-card"><div class="kpi-icon">⭐</div><div><div class="kpi-label">OP平均評価</div><div class="kpi-value" id="kpi-score">-</div></div></div>
       <div class="kpi-card"><div class="kpi-icon">🔴</div><div><div class="kpi-label">高緊急度件数</div><div class="kpi-value" id="kpi-urgent">-</div></div></div>
     </section>
 
     <section class="charts-section">
-      <div class="chart-container"><h2>📊 大区分名 TOP10</h2><canvas id="chart-category"></canvas></div>
-      <div class="chart-container"><h2>🔑 重要キーワード TOP15</h2><canvas id="chart-keyword"></canvas></div>
+      <div class="chart-container"><h2>📊 大区分 TOP10</h2><canvas id="chart-category"></canvas></div>
+      <div class="chart-container"><h2>📄 推定発生ページ TOP15</h2><canvas id="chart-page-top-mini"></canvas></div>
       <div class="chart-container"><h2>✅ 解決ステータス</h2><canvas id="chart-resolve"></canvas></div>
-      <div class="chart-container"><h2>📅 月別通話件数</h2><canvas id="chart-monthly"></canvas></div>
+      <div class="chart-container"><h2>📅 月別件数</h2><canvas id="chart-monthly"></canvas></div>
     </section>
 
     <section class="section">
@@ -141,16 +123,17 @@
       <div class="filters">
         <div class="filter-group"><label>大区分名</label><select id="f-category" class="filter-select"><option value="">すべて</option></select></div>
         <div class="filter-group"><label>解決ステータス</label><select id="f-resolve" class="filter-select"><option value="">すべて</option><option value="解決">解決</option><option value="折り返し・調査中">折り返し・調査中</option></select></div>
-        <div class="filter-group"><label>オペレーター</label><select id="f-operator" class="filter-select"><option value="">すべて</option></select></div>
         <div class="filter-group"><label>開始日</label><input type="date" id="f-date-from" class="filter-input"></div>
         <div class="filter-group"><label>終了日</label><input type="date" id="f-date-to" class="filter-input"></div>
-        <div class="filter-group" style="justify-content:flex-end">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;color:#27ae60">
-            <input type="checkbox" id="f-no-issue" style="width:16px;height:16px;accent-color:#27ae60"> 課題なしのみ
-          </label>
-        </div>
         <button class="btn btn-primary" onclick="applyFilter()">適用</button>
         <button class="btn btn-secondary" onclick="clearFilter()">クリア</button>
+      </div>
+      <div class="filters" style="margin-top:10px">
+        <div class="filter-group">
+          <label>ページ絞り込み（ドリル）</label>
+          <input id="page-drill-current" class="filter-input" type="text" readonly value="（なし）">
+        </div>
+        <button class="btn btn-secondary" onclick="clearPageDrill()">ページ絞り込み解除</button>
       </div>
     </section>
 
@@ -161,54 +144,27 @@
     </section>
   </div>
 
-  <!-- VOC管理 -->
+  <!-- VOC -->
   <div id="tab-voc" class="tab-content">
     <section class="section">
-      <h2>🔍 フィルター</h2>
-      <div class="filters">
-        <div class="filter-group"><label>大区分名</label><select id="f2-category" class="filter-select"><option value="">すべて</option></select></div>
-        <div class="filter-group"><label>解決ステータス</label><select id="f2-resolve" class="filter-select"><option value="">すべて</option><option value="解決">解決</option><option value="折り返し・調査中">折り返し・調査中</option></select></div>
-        <div class="filter-group"><label>オペレーター</label><select id="f2-operator" class="filter-select"><option value="">すべて</option></select></div>
-        <div class="filter-group" style="justify-content:flex-end">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;color:#27ae60">
-            <input type="checkbox" id="f2-no-issue" checked style="width:16px;height:16px;accent-color:#27ae60"> 課題なしのみ
-          </label>
-        </div>
-        <button class="btn btn-primary" onclick="applyFilter2()">適用</button>
-        <button class="btn btn-secondary" onclick="clearFilter2()">クリア</button>
+      <h2>📋 VOC一覧（ページ絞り込みも反映）</h2>
+      <div class="note" style="margin-bottom:10px">
+        <span class="pill">Tip</span> マーケティングタブの「推定発生ページTOP」をクリックすると、ここもそのページで絞り込まれます。
+      </div>
+      <div id="voc2-table-wrap"></div>
+      <div id="voc2-pagination" class="pagination"></div>
+      <div style="margin-top:12px">
         <button class="btn btn-success" onclick="exportCSV()">📥 CSVエクスポート</button>
       </div>
     </section>
-    <section class="section">
-      <h2>📋 VOC一覧</h2>
-      <div id="voc2-table-wrap"></div>
-      <div id="voc2-pagination" class="pagination"></div>
-    </section>
   </div>
 
-  <!-- マーケティング -->
+  <!-- Marketing -->
   <div id="tab-marketing" class="tab-content">
-    <section class="kpi-section">
-      <div class="kpi-card"><div class="kpi-icon">🗂️</div><div><div class="kpi-label">大区分数</div><div class="kpi-value" id="mkpi-cat">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">🔴</div><div><div class="kpi-label">高優先度件数</div><div class="kpi-value" id="mkpi-urgent">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">🚧</div><div><div class="kpi-label">バリア検出件数</div><div class="kpi-value" id="mkpi-barrier">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">💬</div><div><div class="kpi-label">顧客の生の声件数</div><div class="kpi-value" id="mkpi-voice">-</div></div></div>
-    </section>
-
-    <section class="charts-section">
-      <div class="chart-container"><h2>🔥 緊急度分布</h2><canvas id="chart-urgency"></canvas></div>
-      <div class="chart-container"><h2>🌐 Web自己解決可能性</h2><canvas id="chart-selfsolve"></canvas></div>
-      <div class="chart-container"><h2>🗺️ ジャーニー課題タイプ TOP10</h2><canvas id="chart-journey"></canvas></div>
-      <div class="chart-container"><h2>🔧 改善レバー TOP10</h2><canvas id="chart-lever"></canvas></div>
-    </section>
-
-    <!-- ★追加：EC改善（ページ分析） -->
     <section class="section">
       <h2>🧭 EC改善（推定発生ページ分析）</h2>
       <div class="note" style="margin-bottom:12px">
-        <span class="pill">使い方</span>
-        「推定発生ページ」TOPをクリックすると、そのページに関係するVOCへ絞り込みます（ダッシュボード/VOC管理に反映）。
-        <br>※データは <code>推定発生ページ</code> が <code>;</code> 区切りで複数入る想定で集計しています。
+        <span class="pill">目的</span> 「どのページを直すと問い合わせが減るか」を、ページ別件数×未解決率×高緊急度率で把握します。
       </div>
 
       <div class="charts-section" style="margin:0">
@@ -224,95 +180,35 @@
           <div id="page-metrics-wrap"></div>
         </div>
       </div>
-
-      <div class="filters" style="margin-top:12px">
-        <div class="filter-group">
-          <label>現在のページ絞り込み</label>
-          <input id="page-drill-current" class="filter-input" type="text" readonly value="（なし）">
-        </div>
-        <button class="btn btn-secondary" onclick="clearPageDrill()">ページ絞り込み解除</button>
-      </div>
-    </section>
-
-    <section class="charts-section">
-      <div class="chart-container chart-full"><h2>🛍️ 商品カテゴリ別分析</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
-          <canvas id="chart-product"></canvas>
-          <div id="product-table-wrap"></div>
-        </div>
-      </div>
     </section>
 
     <section class="section">
-      <h2>💬 顧客の生の声</h2>
-      <div class="voice-tabs">
-        <button class="voice-tab active" onclick="showVoice('解決',this)">✅ 解決</button>
-        <button class="voice-tab" onclick="showVoice('折り返し・調査中',this)">🔄 折り返し・調査中</button>
-      </div>
-      <div id="voice-list"></div>
-    </section>
-
-    <section class="section">
-      <h2>❓ FAQ候補 TOP20（小区分名）</h2>
-      <div id="faq-wrap"></div>
+      <h2>🧪 データ品質（簡易）</h2>
+      <div id="dq-wrap"></div>
     </section>
   </div>
 
-  <!-- ペインポイント -->
+  <!-- Painpoint (簡略版: バリア要約TOPだけ) -->
   <div id="tab-painpoint" class="tab-content">
-    <section class="kpi-section">
-      <div class="kpi-card"><div class="kpi-icon">🚧</div><div><div class="kpi-label">バリア検出件数（課題あり）</div><div class="kpi-value" id="pp-kpi-total">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">📂</div><div><div class="kpi-label">カテゴリ数</div><div class="kpi-value" id="pp-kpi-cats">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">🔝</div><div><div class="kpi-label">最多カテゴリ</div><div class="kpi-value" id="pp-kpi-top" style="font-size:16px">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">📋</div><div><div class="kpi-label">ユニークバリア数</div><div class="kpi-value" id="pp-kpi-unique">-</div></div></div>
+    <section class="section">
+      <h2>🚧 バリア要約（短） TOP20</h2>
+      <div id="pp-wrap"></div>
     </section>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:0 40px 24px">
-      <div>
-        <div class="chart-container" style="margin-bottom:16px">
-          <h2>📊 カテゴリ別 件数分布</h2>
-          <div style="display:flex;justify-content:center;align-items:center;min-height:300px">
-            <canvas id="pp-pie-chart" width="280" height="280" style="cursor:pointer"></canvas>
-          </div>
-          <p style="text-align:center;font-size:12px;color:#718096;padding:8px;background:#f7faff;border-top:1px solid #e1e8ed">💡 グラフまたは下のカードをクリックで詳細表示</p>
-        </div>
-        <div class="chart-container">
-          <h2>📋 カテゴリ一覧</h2>
-          <div id="pp-summary-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:8px 0"></div>
-        </div>
-      </div>
-      <div class="chart-container" id="pp-detail-panel" style="min-height:500px">
-        <h2 id="pp-detail-title" style="display:flex;align-items:center;gap:8px">
-          <span id="pp-detail-icon">👆</span>
-          <span id="pp-detail-name">カテゴリを選択</span>
-          <span id="pp-detail-badge" style="margin-left:auto;font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;color:#fff;background:#ccc"></span>
-        </h2>
-        <div id="pp-detail-body" style="max-height:600px;overflow-y:auto;margin-top:12px">
-          <div class="empty">左の円グラフまたはカテゴリカードをクリックすると<br>詳細バリア一覧が表示されます</div>
-        </div>
-      </div>
-    </div>
   </div>
 
-  <!-- オペレーター -->
+  <!-- Operator (簡略: OP改善点を眺める) -->
   <div id="tab-operator" class="tab-content">
-    <section class="kpi-section">
-      <div class="kpi-card"><div class="kpi-icon">👤</div><div><div class="kpi-label">オペレーター数</div><div class="kpi-value">48</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">📋</div><div><div class="kpi-label">評価対象通話数</div><div class="kpi-value" id="okpi-cases">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">⭐</div><div><div class="kpi-label">平均OP総合評価</div><div class="kpi-value" id="okpi-score">-</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">✅</div><div><div class="kpi-label">解決率</div><div class="kpi-value" id="okpi-resolve">-</div></div></div>
-    </section>
     <section class="section">
-      <h2>👥 オペレーター一覧</h2>
-      <div id="op-grid" class="op-grid"></div>
-    </section>
-    <section class="charts-section">
-      <div class="chart-container chart-full"><h2>📊 オペレーター別 平均OP総合評価</h2><canvas id="chart-op-score"></canvas></div>
-      <div class="chart-container chart-full"><h2>✅ オペレーター別 解決率</h2><canvas id="chart-op-resolve"></canvas></div>
+      <h2>👥 OP改善点（サンプル）</h2>
+      <div class="note" style="margin-bottom:10px">
+        <span class="pill">注意</span> フォーム由来データはOP個人評価が空の場合があります。ここは“改善点の傾向”を見る用途です。
+      </div>
+      <div id="op-improve-wrap"></div>
     </section>
   </div>
 </div>
 
-<!-- 詳細モーダル -->
+<!-- Modal -->
 <div id="vocModal" class="modal" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal-content">
     <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -322,309 +218,257 @@
 </div>
 
 <script>
-// ===== 固定：オペレーター =====
-const VALID_OPERATORS = ['たちかわ','かわはら','すが','うえだ','たけなか','おち','にしおか','ひさおか','あさい','しば','いちかわ','やまだ','つるい','きむら','すずき','まつやま','かどの','やまさき','もりもと','くろき','むらおか','ふえだ','しんたく','まるおか','しみず','にしやま','ながたけ','とみた','ながかわ','いしはら','おおや','たかはし','たまもり','よしだ','かわばた','やまじ','よこやま','うづき','ほり','おかもと','さとい','かたやま','もり','かたぎり','はせがわ','みずぐち','やすだ','うえの'];
+/** =========================
+ *  1) ヘッダー名→index 自動決定
+ * ========================= */
+let IDX = {};
+let C = {}; // column indexes used by dashboard
 
-// ===== ヘッダー名→index の自動マップ（必須改修）=====
-let IDX = {};     // e.g., IDX['通話日時'] = 0
-let C = {};       // 使う列のショートカット：C.DATE, C.PAGE, etc
-
-// 必須列候補（表記ゆれ吸収）
 const COL_CANDIDATES = {
   DATE: ['通話日時','日時','通話日','通話日付'],
-  OP: ['オペレーター名','オペレーター','担当者','担当オペレーター'],
   CAT: ['大区分名','大区分'],
   SUBCAT: ['小区分名','小区分'],
-  KEYWORDS: ['重要キーワード','キーワード'],
+  INTENT_SHORT: ['意図要約(短)','意図要約（短）','意図要約'],
   RESOLVE: ['解決ステータス','解決状況','対応状況'],
   URGENCY: ['緊急度'],
-  OP_TOTAL: ['OP総合評価','OP評価','総合評価'],
+  PAGE: ['推定発生ページ','推定発生ページ（発生ページ）','発生ページ'],
+  TIMING_SEL: ['発生タイミング（選択）','発生タイミング(選択)'],
+  TIMING: ['発生タイミング','発生タイミング（自然言語）','発生タイミング(自然言語)'],
+  BARRIER_SHORT: ['バリア要約(短)','バリア要約（短）','バリア要約'],
   VOICE: ['顧客の生の声','生の声'],
-  SUMMARY: ['会話要約','要約'],
-  FULL: ['会話全文(整形済)','会話全文（整形済）','会話全文'],
-  BARRIER: ['Webサイトのバリア(Barrier)','Webサイトのバリア','Barrier'],
-  BARRIER_SHORT: ['バリア要約(短)','バリア要約'],
-  SELF_SOLVE: ['Web自己解決可能性','自己解決可能性'],
-  JOURNEY: ['想定カテゴリ軸1','ジャーニー課題タイプ'],
-  LEVER: ['想定カテゴリ軸2','改善レバー'],
-  PRODUCT_CAT: ['商品カテゴリ','商品カテゴリ小カテゴリ'],
-  PAGE: ['推定発生ページ','推定発生ページ（発生ページ）','発生ページ','推定発生ページ(発生ページ)'],
+  OP_IMPROVE: ['OP改善点'],
+  OP_TOTAL: ['OP総合評価','OP評価','総合評価'],
+  PRODUCT: ['商品名'],
+  PRODUCT_CAT: ['商品カテゴリ','商品カテゴリ小カテゴリ','商品カテゴリ小カテゴリ '],
+  KEYWORDS: ['重要キーワード','キーワード']
 };
 
-// 課題なし判定キーワード
-const NO_ISSUE_KEYWORDS = ['確認できず','言及なし','発生していない','課題なし','なし','不明','できず','なし（','指摘なし','問題なし'];
-function hasNoIssue(r) {
-  const b = ((C.BARRIER!=null ? r[C.BARRIER] : '') || '').trim();
-  const bs = ((C.BARRIER_SHORT!=null ? r[C.BARRIER_SHORT] : '') || '').trim();
-  if (!b || !bs) return true;
-  return NO_ISSUE_KEYWORDS.some(k => b.includes(k) || bs.includes(k));
+function buildHeaderIndex(headerRow){
+  IDX = {};
+  (headerRow||[]).forEach((name,i)=>{
+    IDX[String(name||'').trim()] = i;
+  });
+
+  const pick = (cands) => {
+    for(const c of cands){
+      if(IDX[c] != null) return IDX[c];
+    }
+    return null;
+  };
+
+  C = {};
+  for(const k of Object.keys(COL_CANDIDATES)){
+    C[k] = pick(COL_CANDIDATES[k]);
+  }
+
+  // 最低限
+  const must = ['DATE','CAT','SUBCAT','RESOLVE','URGENCY','PAGE'];
+  const missing = must.filter(k => C[k]==null);
+  if(missing.length){
+    console.warn('Missing columns:', missing, 'Resolved:', C, 'Headers:', Object.keys(IDX));
+    alert('CSVの列名が想定と異なります。不足: ' + missing.join(', '));
+  }
 }
 
-// ===== 状態 =====
+/** =========================
+ *  2) データ/状態
+ * ========================= */
 let allData = [];
 let filteredData = [];
 let filteredData2 = [];
 let currentPage = 1;
 let currentPage2 = 1;
 const PAGE_SIZE = 20;
-let currentVoiceFilter = '解決';
 
-// ページドリル状態
-let pageDrill = null; // string | null
+let pageDrill = null; // ページ絞り込み
 
-// チャート管理
 const charts = {};
-
-// ===== 安全エスケープ =====
-function escapeHtml(s) {
-  s = (s ?? '').toString();
-  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// ===== ユーティリティ =====
-function splitVal(v) {
-  return (v||'').toString().split(';').map(s=>s.trim()).filter(s=>s && s!=='不明' && s!=='なし');
-}
-function firstVal(v) { return (v||'').toString().split(';')[0].trim(); }
-function countMap(arr) { const m={}; arr.forEach(v=>{ if(v) m[v]=(m[v]||0)+1; }); return m; }
-function topN(m,n) { return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n); }
 function destroyChart(key){ if(charts[key]){ try{charts[key].destroy()}catch(e){} charts[key]=null; } }
 
-function parseDateFlexible(s) {
-  s = (s || '').toString().trim();
-  if (!s || s==='不明' || s==='なし') return null;
+/** =========================
+ *  3) 表示/集計ユーティリティ
+ * ========================= */
+function nfkc(s){
+  if(s==null) return '';
+  try { return String(s).normalize('NFKC'); } catch(e){ return String(s); }
+}
+function escapeHtml(s){
+  s = nfkc(s);
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function splitVal(v){
+  return nfkc(v||'').split(';').map(s=>s.trim()).filter(s=>s && s!=='不明' && s!=='なし');
+}
+function firstVal(v){ return nfkc(v||'').split(';')[0].trim(); }
+function countMap(arr){ const m={}; arr.forEach(v=>{ if(v) m[v]=(m[v]||0)+1; }); return m; }
+function topN(m,n){ return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n); }
+
+function parseDateFlexible(s){
+  s = nfkc(s||'').trim();
+  if(!s || s==='不明' || s==='なし') return null;
 
   const m14 = s.match(/(20\d{12})/);
-  if (m14) {
+  if(m14){
     const t=m14[1];
     const y=t.slice(0,4), mo=t.slice(4,6), d=t.slice(6,8), hh=t.slice(8,10), mm=t.slice(10,12), ss=t.slice(12,14);
-    const dt = new Date(`${y}-${mo}-${d}T${hh}:${mm}:${ss}`);
-    return isNaN(dt.getTime()) ? null : dt;
+    const dt=new Date(`${y}-${mo}-${d}T${hh}:${mm}:${ss}`);
+    return isNaN(dt.getTime())?null:dt;
   }
   const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
-  if (m) {
+  if(m){
     const y=m[1], mo=m[2].padStart(2,'0'), d=m[3].padStart(2,'0');
     const hh=(m[4]??'0').padStart(2,'0'), mm=(m[5]??'00').padStart(2,'0'), ss=(m[6]??'00').padStart(2,'0');
-    const dt = new Date(`${y}-${mo}-${d}T${hh}:${mm}:${ss}`);
-    return isNaN(dt.getTime()) ? null : dt;
+    const dt=new Date(`${y}-${mo}-${d}T${hh}:${mm}:${ss}`);
+    return isNaN(dt.getTime())?null:dt;
   }
-  const dt = new Date(s);
-  return isNaN(dt.getTime()) ? null : dt;
+  const dt=new Date(s);
+  return isNaN(dt.getTime())?null:dt;
 }
 
-// ===== ヘッダーマップ構築 =====
-function buildHeaderIndex(headerRow) {
-  IDX = {};
-  (headerRow||[]).forEach((name,i)=>{ IDX[(name||'').toString().trim()] = i; });
-
-  function pickIndex(cands) {
-    for (const c of cands) {
-      if (IDX[c] != null) return IDX[c];
-    }
-    return null;
-  }
-
-  C = {};
-  for (const key of Object.keys(COL_CANDIDATES)) {
-    C[key] = pickIndex(COL_CANDIDATES[key]);
-  }
-
-  // 必須の最低限チェック
-  const must = ['DATE','RESOLVE','URGENCY','OP_TOTAL','CAT','SUBCAT','PAGE'];
-  const missing = must.filter(k => C[k]==null);
-  if (missing.length) {
-    console.warn('Missing columns:', missing, 'Resolved IDX:', C, 'All headers:', Object.keys(IDX));
-    alert('CSVの列名が想定と違います。足りない列: ' + missing.join(', ') + '\n（ヘッダー名を確認してください）');
-  }
-}
-
-// ===== CSV読み込み =====
-function parseCSV(file) {
-  Papa.parse(file, {
-    header: false,
-    skipEmptyLines: true,
-    quoteChar: '"',
-    escapeChar: '"',
-    newline: "",
-    complete: function(results) {
+/** =========================
+ *  4) CSV読み込み
+ * ========================= */
+function parseCSV(file){
+  Papa.parse(file,{
+    header:false,
+    skipEmptyLines:true,
+    quoteChar:'"',
+    escapeChar:'"',
+    newline:"",
+    complete:(results)=>{
       const rows = results.data;
-      if (!rows || rows.length < 2) { alert('データが見つかりません'); return; }
+      if(!rows || rows.length<2){ alert('データが見つかりません'); return; }
 
       const header = rows[0];
       buildHeaderIndex(header);
 
       allData = rows.slice(1);
-      allData.forEach((r,i)=>{ r.__idx=i; }); // 参照用
+      allData.forEach((r,i)=>{ r.__idx=i; });
 
       filteredData = [...allData];
       filteredData2 = [...allData];
 
-      const st = document.getElementById('dataStatus');
-      if (st) st.textContent = '✅ ' + allData.length.toLocaleString() + ' 件';
+      document.getElementById('dataStatus').textContent = '✅ ' + allData.length.toLocaleString() + ' 件';
 
       initFilters();
-      updateDashboard();
-      updateMarketing();     // ←ここでページ分析も描画
-      updateOperator();
-      updatePainpoint();
+      updateAll();
     },
-    error: function(err){ alert('CSVの読み込みに失敗しました: ' + err.message); }
+    error:(err)=>alert('CSVの読み込みに失敗: ' + err.message)
   });
 }
 
-// ===== フィルター初期化 =====
-function initFilters() {
-  // 大区分
-  const catSet = new Set();
-  allData.forEach(r => splitVal(r[C.CAT]).forEach(v=>catSet.add(v)));
-  const cats = [...catSet].sort();
+/** =========================
+ *  5) フィルタ
+ * ========================= */
+function initFilters(){
+  const catSet=new Set();
+  allData.forEach(r=>splitVal(r[C.CAT]).forEach(v=>catSet.add(v)));
+  const cats=[...catSet].sort();
 
-  ['f-category','f2-category'].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = '<option value="">すべて</option>';
-    cats.forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
-  });
-
-  // OP
-  ['f-operator','f2-operator'].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = '<option value="">すべて</option>';
-    VALID_OPERATORS.forEach(op => { const o=document.createElement('option'); o.value=op; o.textContent=op; sel.appendChild(o); });
-  });
+  const sel=document.getElementById('f-category');
+  sel.innerHTML='<option value="">すべて</option>';
+  cats.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
 }
 
-// ===== フィルター適用（ページドリルも反映）=====
-function applyFilter() {
-  const cat = document.getElementById('f-category').value;
-  const res = document.getElementById('f-resolve').value;
-  const op  = document.getElementById('f-operator').value;
-  const df  = document.getElementById('f-date-from').value;
-  const dt  = document.getElementById('f-date-to').value;
-  const noIssue = document.getElementById('f-no-issue')?.checked;
+function applyFilter(){
+  const cat=document.getElementById('f-category').value;
+  const res=document.getElementById('f-resolve').value;
+  const df=document.getElementById('f-date-from').value;
+  const dt=document.getElementById('f-date-to').value;
 
-  filteredData = allData.filter(r => {
-    if (pageDrill) {
+  filteredData = allData.filter(r=>{
+    if(pageDrill){
       const pages = splitVal(r[C.PAGE]);
-      if (!pages.includes(pageDrill)) return false;
+      if(!pages.includes(pageDrill)) return false;
     }
-    if (cat && !splitVal(r[C.CAT]).includes(cat)) return false;
-    if (res && (r[C.RESOLVE]||'').trim() !== res) return false;
-    if (op && (r[C.OP]||'').trim() !== op) return false;
-    if (noIssue && !hasNoIssue(r)) return false;
-
-    if (df || dt) {
-      const d = parseDateFlexible(r[C.DATE]);
-      if (!d) return false;
-      if (df && d < new Date(df+'T00:00:00')) return false;
-      if (dt && d > new Date(dt+'T23:59:59')) return false;
+    if(cat && !splitVal(r[C.CAT]).includes(cat)) return false;
+    if(res && firstVal(r[C.RESOLVE])!==res) return false;
+    if(df || dt){
+      const d=parseDateFlexible(r[C.DATE]);
+      if(!d) return false;
+      if(df && d < new Date(df+'T00:00:00')) return false;
+      if(dt && d > new Date(dt+'T23:59:59')) return false;
     }
     return true;
   });
 
-  currentPage = 1;
+  currentPage=1;
   renderVocTable();
 }
 
-function clearFilter() {
-  ['f-category','f-resolve','f-operator'].forEach(id => document.getElementById(id).value='');
-  ['f-date-from','f-date-to'].forEach(id => document.getElementById(id).value='');
-  const cb = document.getElementById('f-no-issue'); if(cb) cb.checked=false;
-  filteredData = [...allData]; currentPage=1;
-  // ページドリルは維持（仕様）
+function clearFilter(){
+  document.getElementById('f-category').value='';
+  document.getElementById('f-resolve').value='';
+  document.getElementById('f-date-from').value='';
+  document.getElementById('f-date-to').value='';
   applyFilter();
 }
 
-function applyFilter2() {
-  const cat = document.getElementById('f2-category').value;
-  const res = document.getElementById('f2-resolve').value;
-  const op  = document.getElementById('f2-operator').value;
-  const noIssue = document.getElementById('f2-no-issue')?.checked;
-
-  filteredData2 = allData.filter(r => {
-    if (pageDrill) {
-      const pages = splitVal(r[C.PAGE]);
-      if (!pages.includes(pageDrill)) return false;
+function setPageDrill(pageName){
+  pageDrill = pageName || null;
+  document.getElementById('page-drill-current').value = pageDrill ? pageDrill : '（なし）';
+  // 両方の一覧を更新
+  applyFilter();
+  applyVoc2();
+  closeModal();
+}
+function clearPageDrill(){
+  setPageDrill(null);
+}
+function applyVoc2(){
+  filteredData2 = allData.filter(r=>{
+    if(pageDrill){
+      const pages=splitVal(r[C.PAGE]);
+      if(!pages.includes(pageDrill)) return false;
     }
-    if (cat && !splitVal(r[C.CAT]).includes(cat)) return false;
-    if (res && (r[C.RESOLVE]||'').trim() !== res) return false;
-    if (op && (r[C.OP]||'').trim() !== op) return false;
-    if (noIssue && !hasNoIssue(r)) return false;
     return true;
   });
-
-  currentPage2 = 1;
+  currentPage2=1;
   renderVocTable2();
 }
 
-function clearFilter2() {
-  ['f2-category','f2-resolve','f2-operator'].forEach(id => document.getElementById(id).value='');
-  const cb = document.getElementById('f2-no-issue'); if(cb) cb.checked=false;
-  filteredData2 = [...allData]; currentPage2=1;
-  // ページドリルは維持（仕様）
-  applyFilter2();
+/** =========================
+ *  6) KPI/チャート/テーブル更新
+ * ========================= */
+function updateAll(){
+  updateDashboard();
+  updateMarketing();
+  updatePainpoint();
+  updateOperator();
+  renderVocTable();
+  applyVoc2();
 }
 
-// ===== ページドリル =====
-function setPageDrill(pageName) {
-  pageDrill = pageName || null;
-  document.getElementById('page-drill-current').value = pageDrill ? pageDrill : '（なし）';
-
-  // 既存フィルタを保持したまま再適用
-  applyFilter();
-  applyFilter2();
-
-  // タブのVOC一覧も更新済み。必要ならモーダルは閉じる
-  closeModal();
-}
-
-function clearPageDrill() {
-  pageDrill = null;
-  document.getElementById('page-drill-current').value = '（なし）';
-  applyFilter();
-  applyFilter2();
-  closeModal();
-}
-
-// ===== ダッシュボード更新 =====
-function updateDashboard() {
+function updateDashboard(){
   const total = allData.length;
-  const resolved = allData.filter(r => (r[C.RESOLVE]||'').trim()==='解決').length;
+  const resolved = allData.filter(r=>firstVal(r[C.RESOLVE])==='解決').length;
   const resolveRate = total ? (resolved/total*100).toFixed(1) : '0.0';
 
-  const scores = allData.map(r => parseFloat(r[C.OP_TOTAL])).filter(n => !isNaN(n) && n>0);
-  const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
+  const urgentCount = allData.filter(r=>splitVal(r[C.URGENCY]).includes('高')).length;
 
-  const urgentCount = allData.filter(r => splitVal(r[C.URGENCY]).includes('高')).length;
+  const scores = (C.OP_TOTAL!=null)
+    ? allData.map(r=>parseFloat(nfkc(r[C.OP_TOTAL]))).filter(n=>!isNaN(n)&&n>0)
+    : [];
+  const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
 
   document.getElementById('kpi-total').textContent = total.toLocaleString();
   document.getElementById('kpi-resolve').textContent = resolveRate + '%';
-  document.getElementById('kpi-score').textContent = avgScore;
   document.getElementById('kpi-urgent').textContent = urgentCount.toLocaleString();
+  document.getElementById('kpi-score').textContent = avgScore;
 
-  // 大区分TOP10
-  const catMap = {};
-  allData.forEach(r => splitVal(r[C.CAT]).forEach(v => catMap[v]=(catMap[v]||0)+1));
+  // 大区分TOP
+  const catMap={};
+  allData.forEach(r=>splitVal(r[C.CAT]).forEach(v=>catMap[v]=(catMap[v]||0)+1));
   const catTop = topN(catMap,10).reverse();
   destroyChart('category');
   charts['category']=new Chart(document.getElementById('chart-category'),{
     type:'bar',
-    data:{labels:catTop.map(d=>d[0]),datasets:[{label:'件数',data:catTop.map(d=>d[1]),backgroundColor:'#36A2EB'}]},
+    data:{labels:catTop.map(d=>d[0]),datasets:[{data:catTop.map(d=>d[1]),backgroundColor:'#36A2EB'}]},
     options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
   });
 
-  // キーワードTOP15
-  const kwMap = {};
-  allData.forEach(r => splitVal(r[C.KEYWORDS]).forEach(v => kwMap[v]=(kwMap[v]||0)+1));
-  const kwTop = topN(kwMap,15).reverse();
-  destroyChart('keyword');
-  charts['keyword']=new Chart(document.getElementById('chart-keyword'),{
-    type:'bar',
-    data:{labels:kwTop.map(d=>d[0]),datasets:[{label:'件数',data:kwTop.map(d=>d[1]),backgroundColor:'#4BC0C0'}]},
-    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-  });
-
-  // 解決
-  const resMap = countMap(allData.map(r => (r[C.RESOLVE]||'').trim()).filter(Boolean));
+  // 解決ステータス
+  const resMap = countMap(allData.map(r=>firstVal(r[C.RESOLVE])).filter(Boolean));
   destroyChart('resolve');
   charts['resolve']=new Chart(document.getElementById('chart-resolve'),{
     type:'doughnut',
@@ -633,531 +477,335 @@ function updateDashboard() {
   });
 
   // 月別
-  const monthMap = {};
+  const monthMap={};
   allData.forEach(r=>{
     const d=parseDateFlexible(r[C.DATE]);
     if(!d) return;
-    const k = d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0');
+    const k=d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0');
     monthMap[k]=(monthMap[k]||0)+1;
   });
-  const months = Object.keys(monthMap).sort();
+  const months=Object.keys(monthMap).sort();
   destroyChart('monthly');
   charts['monthly']=new Chart(document.getElementById('chart-monthly'),{
     type:'line',
-    data:{labels:months,datasets:[{label:'件数',data:months.map(m=>monthMap[m]),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,.1)',fill:true,tension:.3}]},
+    data:{labels:months,datasets:[{data:months.map(m=>monthMap[m]),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,.1)',fill:true,tension:.3}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
   });
 
-  renderVocTable();
+  // ページTOP15（ミニ）
+  const pageMap={};
+  allData.forEach(r=>splitVal(r[C.PAGE]).forEach(p=>pageMap[p]=(pageMap[p]||0)+1));
+  const pageTop = topN(pageMap,15).reverse();
+  destroyChart('page-mini');
+  charts['page-mini']=new Chart(document.getElementById('chart-page-top-mini'),{
+    type:'bar',
+    data:{labels:pageTop.map(d=>d[0]),datasets:[{data:pageTop.map(d=>d[1]),backgroundColor:'#4BC0C0'}]},
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{legend:{display:false}},
+      onClick:(evt,els)=>{
+        if(!els?.length) return;
+        const i=els[0].index;
+        const pageName = pageTop[i][0];
+        setPageDrill(pageName);
+      }
+    }
+  });
 }
 
-// ===== VOCテーブル =====
-function renderVocTable() {
+function updateMarketing(){
+  // ページTOP20 + 指標
+  const pageMap = {};
+  const pageStats = {}; // page -> {total, unresolved, urgentHigh}
+  allData.forEach(r=>{
+    const pages = splitVal(r[C.PAGE]);
+    const res = firstVal(r[C.RESOLVE]);
+    const urgHigh = splitVal(r[C.URGENCY]).includes('高');
+    pages.forEach(p=>{
+      pageMap[p]=(pageMap[p]||0)+1;
+      if(!pageStats[p]) pageStats[p]={total:0,unresolved:0,urgentHigh:0};
+      pageStats[p].total++;
+      if(res==='折り返し・調査中') pageStats[p].unresolved++;
+      if(urgHigh) pageStats[p].urgentHigh++;
+    });
+  });
+  const top = topN(pageMap,20); // desc
+  const labels = top.map(d=>d[0]).reverse();
+  const counts = top.map(d=>d[1]).reverse();
+
+  destroyChart('page-top');
+  charts['page-top']=new Chart(document.getElementById('chart-page-top'),{
+    type:'bar',
+    data:{labels, datasets:[{label:'件数',data:counts,backgroundColor:'#36A2EB'}]},
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{legend:{display:false}},
+      onClick:(evt,els)=>{
+        if(!els?.length) return;
+        const i=els[0].index;
+        const pageName = labels[i];
+        setPageDrill(pageName);
+      },
+      scales:{x:{beginAtZero:true}}
+    }
+  });
+
+  let html = '<table><thead><tr><th>#</th><th>ページ</th><th>件数</th><th>未解決率</th><th>高緊急度率</th><th></th></tr></thead><tbody>';
+  top.forEach((d,i)=>{
+    const p=d[0], st=pageStats[p]||{total:d[1],unresolved:0,urgentHigh:0};
+    const ur=st.total ? (st.unresolved/st.total*100).toFixed(1) : '0.0';
+    const hr=st.total ? (st.urgentHigh/st.total*100).toFixed(1) : '0.0';
+    html += `<tr class="clickable" onclick="setPageDrill('${escapeHtml(p).replace(/'/g,"&#39;")}')">
+      <td>${i+1}</td>
+      <td>${escapeHtml(p)}</td>
+      <td>${st.total}</td>
+      <td>${ur}%</td>
+      <td>${hr}%</td>
+      <td><button class="page-btn" style="padding:4px 10px" onclick="event.stopPropagation(); setPageDrill('${escapeHtml(p).replace(/'/g,"&#39;")}')">絞込</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('page-metrics-wrap').innerHTML = html;
+
+  // データ品質（簡易）
+  const total = allData.length;
+  const unknown = (idx)=> allData.filter(r=>{
+    const v = nfkc(r[idx]||'').trim();
+    return !v || v==='不明' || v==='なし';
+  }).length;
+
+  const dq = [];
+  if(C.PAGE!=null) dq.push(['推定発生ページ 不明率', (unknown(C.PAGE)/total*100).toFixed(1)+'%']);
+  if(C.URGENCY!=null) dq.push(['緊急度 不明率', (unknown(C.URGENCY)/total*100).toFixed(1)+'%']);
+  if(C.RESOLVE!=null) dq.push(['解決ステータス 不明率', (unknown(C.RESOLVE)/total*100).toFixed(1)+'%']);
+
+  // 結合文字っぽいもの（゛゜分離）検出（簡易）
+  const rxComb = /[\u3099\u309A]/; // combining dakuten/handakuten
+  const combHits = allData.slice(0, Math.min(5000, allData.length)).reduce((acc,r)=>{
+    const txt = [r[C.PRODUCT], r[C.KEYWORDS], r[C.VOICE]].filter(v=>v!=null).map(v=>String(v)).join(' ');
+    return acc + (rxComb.test(txt) ? 1 : 0);
+  },0);
+
+  let dqHtml = '<table><thead><tr><th>項目</th><th>値</th></tr></thead><tbody>';
+  dq.forEach(([k,v])=> dqHtml += `<tr><td>${escapeHtml(k)}</td><td>${escapeHtml(v)}</td></tr>`);
+  dqHtml += `<tr><td>結合濁点/半濁点の疑い（先頭最大5000件スキャン）</td><td>${combHits} 件</td></tr>`;
+  dqHtml += '</tbody></table>';
+  document.getElementById('dq-wrap').innerHTML = dqHtml;
+}
+
+function updatePainpoint(){
+  if(C.BARRIER_SHORT==null){
+    document.getElementById('pp-wrap').innerHTML='<div class="empty">バリア要約列がありません</div>';
+    return;
+  }
+  const m={};
+  allData.forEach(r=>{
+    splitVal(r[C.BARRIER_SHORT]).forEach(v=>m[v]=(m[v]||0)+1);
+  });
+  const top = topN(m,20);
+  let html='<table><thead><tr><th>#</th><th>バリア要約(短)</th><th>件数</th></tr></thead><tbody>';
+  top.forEach((d,i)=> html += `<tr><td>${i+1}</td><td>${escapeHtml(d[0])}</td><td>${d[1]}</td></tr>`);
+  html+='</tbody></table>';
+  document.getElementById('pp-wrap').innerHTML=html;
+}
+
+function updateOperator(){
+  // フォーム増分：OP改善点を眺める（上位）
+  if(C.OP_IMPROVE==null){
+    document.getElementById('op-improve-wrap').innerHTML='<div class="empty">OP改善点列がありません</div>';
+    return;
+  }
+  const m={};
+  allData.forEach(r=>{
+    const v = nfkc(r[C.OP_IMPROVE]||'').trim();
+    if(!v || v==='不明' || v==='なし') return;
+    // 長文はそのまま集計しづらいので先頭80文字で近似集計
+    const key = v.length>80 ? v.slice(0,80)+'…' : v;
+    m[key]=(m[key]||0)+1;
+  });
+  const top = topN(m,20);
+  if(!top.length){
+    document.getElementById('op-improve-wrap').innerHTML='<div class="empty">データがありません</div>';
+    return;
+  }
+  let html='<table><thead><tr><th>#</th><th>OP改善点（先頭80文字で集計）</th><th>件数</th></tr></thead><tbody>';
+  top.forEach((d,i)=> html += `<tr><td>${i+1}</td><td>${escapeHtml(d[0])}</td><td>${d[1]}</td></tr>`);
+  html+='</tbody></table>';
+  document.getElementById('op-improve-wrap').innerHTML=html;
+}
+
+/** =========================
+ *  7) テーブル描画（Dashboard/VOC）
+ * ========================= */
+function renderVocTable(){
   const data = filteredData;
   const total = data.length;
   const maxPage = Math.ceil(total/PAGE_SIZE) || 1;
-  if (currentPage>maxPage) currentPage=maxPage;
+  if(currentPage>maxPage) currentPage=maxPage;
+
   const slice = data.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
   const wrap = document.getElementById('voc-table-wrap');
-  if (!slice.length) { wrap.innerHTML='<div class="empty">データがありません</div>'; document.getElementById('voc-pagination').innerHTML=''; return; }
+  if(!slice.length){
+    wrap.innerHTML='<div class="empty">データがありません</div>';
+    document.getElementById('voc-pagination').innerHTML='';
+    return;
+  }
 
-  let html = '<table><thead><tr><th>通話日時</th><th>オペレーター</th><th>大区分名</th><th>小区分名</th><th>意図要約</th><th>解決</th><th>OP評価</th></tr></thead><tbody>';
+  let html='<table><thead><tr><th>通話日時</th><th>大区分</th><th>小区分</th><th>意図要約</th><th>ページ</th><th>解決</th><th>緊急度</th></tr></thead><tbody>';
   slice.forEach(r=>{
-    const d = parseDateFlexible(r[C.DATE]);
-    const dateStr = d ? d.toLocaleDateString('ja-JP') : (r[C.DATE]||'-');
-    const res = (r[C.RESOLVE]||'').trim();
-    const idx = r.__idx ?? allData.indexOf(r);
+    const idx=r.__idx ?? allData.indexOf(r);
+    const d=parseDateFlexible(r[C.DATE]);
+    const dateStr = d ? d.toLocaleString('ja-JP') : nfkc(r[C.DATE]||'-');
+    const res = firstVal(r[C.RESOLVE]);
+    const urg = firstVal(r[C.URGENCY]);
+    const pages = splitVal(r[C.PAGE]).slice(0,2).join(' / ');
+
     html += `<tr class="clickable" onclick="showDetail(${idx})">
       <td>${escapeHtml(dateStr)}</td>
-      <td>${escapeHtml(r[C.OP]||'-')}</td>
       <td>${escapeHtml(firstVal(r[C.CAT])||'-')}</td>
       <td>${escapeHtml(firstVal(r[C.SUBCAT])||'-')}</td>
-      <td style="max-width:200px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(firstVal(r[C.INTENT_SHORT] ?? '')) || '-'}</td>
+      <td style="max-width:260px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(firstVal(r[C.INTENT_SHORT])||'-')}</td>
+      <td style="max-width:220px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(pages||'-')}</td>
       <td><span class="badge ${res==='解決'?'badge-resolved':'badge-unresolved'}">${escapeHtml(res||'-')}</span></td>
-      <td>${escapeHtml(r[C.OP_TOTAL]||'-')}</td>
+      <td>${escapeHtml(urg||'-')}</td>
     </tr>`;
   });
-  html += '</tbody></table>';
-  wrap.innerHTML = html;
-  renderPagination('voc-pagination', currentPage, maxPage, p=>{ currentPage=p; renderVocTable(); });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+  renderPagination('voc-pagination', currentPage, maxPage, (p)=>{ currentPage=p; renderVocTable(); });
 }
 
-function renderVocTable2() {
+function renderVocTable2(){
   const data = filteredData2;
   const total = data.length;
   const maxPage = Math.ceil(total/PAGE_SIZE) || 1;
-  if (currentPage2>maxPage) currentPage2=maxPage;
+  if(currentPage2>maxPage) currentPage2=maxPage;
+
   const slice = data.slice((currentPage2-1)*PAGE_SIZE, currentPage2*PAGE_SIZE);
   const wrap = document.getElementById('voc2-table-wrap');
-  if (!slice.length) { wrap.innerHTML='<div class="empty">データがありません</div>'; document.getElementById('voc2-pagination').innerHTML=''; return; }
+  if(!slice.length){
+    wrap.innerHTML='<div class="empty">データがありません</div>';
+    document.getElementById('voc2-pagination').innerHTML='';
+    return;
+  }
 
-  let html = '<table><thead><tr><th>通話日時</th><th>オペレーター</th><th>大区分名</th><th>小区分名</th><th>意図要約</th><th>解決</th><th>OP評価</th></tr></thead><tbody>';
+  let html='<table><thead><tr><th>通話日時</th><th>ページ</th><th>意図要約</th><th>バリア要約</th><th>解決</th></tr></thead><tbody>';
   slice.forEach(r=>{
-    const d = parseDateFlexible(r[C.DATE]);
-    const dateStr = d ? d.toLocaleDateString('ja-JP') : (r[C.DATE]||'-');
-    const res = (r[C.RESOLVE]||'').trim();
-    const idx = r.__idx ?? allData.indexOf(r);
+    const idx=r.__idx ?? allData.indexOf(r);
+    const d=parseDateFlexible(r[C.DATE]);
+    const dateStr = d ? d.toLocaleString('ja-JP') : nfkc(r[C.DATE]||'-');
+    const res = firstVal(r[C.RESOLVE]);
+    const pages = splitVal(r[C.PAGE]).slice(0,2).join(' / ');
+    const barrier = C.BARRIER_SHORT!=null ? firstVal(r[C.BARRIER_SHORT]) : '-';
+
     html += `<tr class="clickable" onclick="showDetail(${idx})">
       <td>${escapeHtml(dateStr)}</td>
-      <td>${escapeHtml(r[C.OP]||'-')}</td>
-      <td>${escapeHtml(firstVal(r[C.CAT])||'-')}</td>
-      <td>${escapeHtml(firstVal(r[C.SUBCAT])||'-')}</td>
-      <td style="max-width:200px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(firstVal(r[C.INTENT_SHORT] ?? '')) || '-'}</td>
+      <td style="max-width:220px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(pages||'-')}</td>
+      <td style="max-width:300px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(firstVal(r[C.INTENT_SHORT])||'-')}</td>
+      <td style="max-width:240px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(barrier||'-')}</td>
       <td><span class="badge ${res==='解決'?'badge-resolved':'badge-unresolved'}">${escapeHtml(res||'-')}</span></td>
-      <td>${escapeHtml(r[C.OP_TOTAL]||'-')}</td>
     </tr>`;
   });
-  html += '</tbody></table>';
-  wrap.innerHTML = html;
-  renderPagination('voc2-pagination', currentPage2, maxPage, p=>{ currentPage2=p; renderVocTable2(); });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+  renderPagination('voc2-pagination', currentPage2, maxPage, (p)=>{ currentPage2=p; renderVocTable2(); });
 }
 
-// ページネーション（確実動作版）
-function renderPagination(id, cur, max, cb) {
-  const el = document.getElementById(id);
-  if (!el) return;
+function renderPagination(id, cur, max, cb){
+  const el=document.getElementById(id);
   el.innerHTML='';
-  if (max<=1) return;
+  if(max<=1) return;
 
-  function addBtn(label, page, active=false){
+  const addBtn=(label,page,active=false)=>{
     const b=document.createElement('button');
     b.className='page-btn'+(active?' active':'');
     b.textContent=label;
     b.addEventListener('click',()=>cb(page));
     el.appendChild(b);
-  }
-  function addSpan(t){ const s=document.createElement('span'); s.textContent=t; s.style.color='#888'; s.style.padding='0 4px'; el.appendChild(s); }
+  };
+  const addSpan=(t)=>{
+    const s=document.createElement('span');
+    s.textContent=t; s.style.color='#888'; s.style.padding='0 4px';
+    el.appendChild(s);
+  };
 
-  if (cur>1) addBtn('◀', cur-1);
+  if(cur>1) addBtn('◀',cur-1);
   const start=Math.max(1,cur-2), end=Math.min(max,cur+2);
-  if (start>1){ addBtn('1',1,cur===1); if(start>2) addSpan('…'); }
+  if(start>1){ addBtn('1',1,cur===1); if(start>2) addSpan('…'); }
   for(let p=start;p<=end;p++) addBtn(String(p),p,p===cur);
-  if (end<max){ if(end<max-1) addSpan('…'); addBtn(String(max),max,cur===max); }
-  if (cur<max) addBtn('▶', cur+1);
+  if(end<max){ if(end<max-1) addSpan('…'); addBtn(String(max),max,cur===max); }
+  if(cur<max) addBtn('▶',cur+1);
 }
 
-// ===== 詳細モーダル =====
+/** =========================
+ *  8) 詳細モーダル
+ * ========================= */
 function showDetail(idx){
   const r = allData[idx];
   if(!r) return;
-  const d = parseDateFlexible(r[C.DATE]);
-  document.getElementById('modal-title').textContent = '通話詳細 #' + ((r[C.DATE]||idx+1));
+
+  const d=parseDateFlexible(r[C.DATE]);
+  const dateStr = d ? d.toLocaleString('ja-JP') : nfkc(r[C.DATE]||'');
 
   const fields = [
-    ['通話日時', d ? d.toLocaleString('ja-JP') : r[C.DATE]],
-    ['オペレーター名', r[C.OP]],
-    ['顧客属性', r[C.CU_ATTR] ?? r[ IDX['顧客属性'] ] ],
-    ['問い合わせ元サイト', r[ C.SITE ?? IDX['問い合わせ元サイト'] ] ],
+    ['通話日時', dateStr],
     ['大区分名', r[C.CAT]],
     ['小区分名', r[C.SUBCAT]],
-    ['解決ステータス', r[C.RESOLVE]],
-    ['OP総合評価', r[C.OP_TOTAL]],
-    ['緊急度', r[C.URGENCY]],
-    ['Web自己解決可能性', r[C.SELF_SOLVE]],
     ['推定発生ページ', r[C.PAGE]],
-  ].filter(x => x[1] !== undefined);
+    ['発生タイミング', C.TIMING_SEL!=null ? r[C.TIMING_SEL] : (C.TIMING!=null ? r[C.TIMING] : '')],
+    ['緊急度', r[C.URGENCY]],
+    ['解決ステータス', r[C.RESOLVE]],
+    ['商品名', C.PRODUCT!=null ? r[C.PRODUCT] : ''],
+    ['商品カテゴリ', C.PRODUCT_CAT!=null ? r[C.PRODUCT_CAT] : '']
+  ];
 
   let html = '<div class="modal-grid">';
-  fields.forEach(([l,v])=>{
-    html += `<div class="modal-field"><label>${escapeHtml(l)}</label><span>${escapeHtml((v??'-'))}</span></div>`;
+  fields.forEach(([k,v])=>{
+    if(v==null || String(v).trim()==='') return;
+    html += `<div class="modal-field"><label>${escapeHtml(k)}</label><span>${escapeHtml(v)}</span></div>`;
   });
   html += '</div>';
 
   const sections = [
-    ['ユーザーの意図', r[C.INTENT] ?? r[IDX['ユーザーの意図(Intent)']]],
-    ['意図要約(短)', r[C.INTENT_SHORT] ?? r[IDX['意図要約(短)']]],
-    ['Webサイトのバリア', r[C.BARRIER]],
-    ['バリア要約(短)', r[C.BARRIER_SHORT]],
-    ['重要キーワード', r[C.KEYWORDS]],
-    ['会話要約', r[C.SUMMARY]],
-    ['顧客の生の声', r[C.VOICE]],
-    ['OP良かった点', r[C.OP_GOOD] ?? r[IDX['OP良かった点']]],
-    ['OP改善点', r[C.OP_IMPROVE] ?? r[IDX['OP改善点']]],
+    ['意図要約(短)', C.INTENT_SHORT!=null ? r[C.INTENT_SHORT] : ''],
+    ['バリア要約(短)', C.BARRIER_SHORT!=null ? r[C.BARRIER_SHORT] : ''],
+    ['顧客の生の声', C.VOICE!=null ? r[C.VOICE] : ''],
+    ['OP改善点', C.OP_IMPROVE!=null ? r[C.OP_IMPROVE] : ''],
+    ['重要キーワード', C.KEYWORDS!=null ? r[C.KEYWORDS] : '']
   ];
 
-  sections.forEach(([l,v])=>{
-    if(v && v!=='不明' && v!=='なし'){
-      html += `<div class="modal-section"><h3>${escapeHtml(l)}</h3><div class="conversation-box">${escapeHtml(v)}</div></div>`;
-    }
+  sections.forEach(([k,v])=>{
+    v = nfkc(v||'').trim();
+    if(!v || v==='不明' || v==='なし') return;
+    html += `<div class="modal-section"><h3>${escapeHtml(k)}</h3><div class="conversation-box">${escapeHtml(v)}</div></div>`;
   });
 
-  if (C.FULL!=null && r[C.FULL] && r[C.FULL]!=='不明' && r[C.FULL]!=='なし'){
-    html += `<div class="modal-section"><h3>会話全文</h3><div class="conversation-box">${escapeHtml(r[C.FULL])}</div></div>`;
-  }
-
+  document.getElementById('modal-title').textContent = 'VOC詳細';
   document.getElementById('modal-body').innerHTML = html;
   document.getElementById('vocModal').style.display='flex';
 }
 function closeModal(){ document.getElementById('vocModal').style.display='none'; }
 
-// ===== マーケティング（既存＋ページ分析追加）=====
-function updateMarketing(){
-  // KPI
-  try{
-    const catSet=new Set();
-    allData.forEach(r=>splitVal(r[C.CAT]).forEach(v=>catSet.add(v)));
-    document.getElementById('mkpi-cat').textContent = catSet.size;
-    document.getElementById('mkpi-urgent').textContent = allData.filter(r=>splitVal(r[C.URGENCY]).includes('高')).length.toLocaleString();
-    document.getElementById('mkpi-barrier').textContent = allData.filter(r=>{const v=r[C.BARRIER]; return v && v!=='不明' && v!=='なし' && v!=='';}).length.toLocaleString();
-    document.getElementById('mkpi-voice').textContent = allData.filter(r=>{const v=r[C.VOICE]; return v && v!=='不明' && v!=='なし' && v!=='';}).length.toLocaleString();
-  }catch(e){ console.error('mkpi',e); }
-
-  // 緊急度
-  try{
-    const urgMap={高:0,中:0,低:0};
-    allData.forEach(r=>splitVal(r[C.URGENCY]).forEach(v=>{ if(urgMap[v]!=null) urgMap[v]++; }));
-    destroyChart('urgency');
-    charts['urgency']=new Chart(document.getElementById('chart-urgency'),{
-      type:'doughnut',
-      data:{labels:Object.keys(urgMap),datasets:[{data:Object.values(urgMap),backgroundColor:['#FF6384','#FFCE56','#4BC0C0']}]},
-      options:{responsive:true,plugins:{legend:{position:'bottom'}}}
-    });
-  }catch(e){ console.error('urgency',e); }
-
-  // 自己解決
-  try{
-    const ssMap={高:0,中:0,低:0};
-    allData.forEach(r=>splitVal(r[C.SELF_SOLVE]).forEach(v=>{ if(ssMap[v]!=null) ssMap[v]++; }));
-    destroyChart('selfsolve');
-    charts['selfsolve']=new Chart(document.getElementById('chart-selfsolve'),{
-      type:'bar',
-      data:{labels:Object.keys(ssMap),datasets:[{label:'件数',data:Object.values(ssMap),backgroundColor:['#4BC0C0','#FFCE56','#FF6384']}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-    });
-  }catch(e){ console.error('selfsolve',e); }
-
-  // ジャーニー
-  try{
-    const jMap={};
-    allData.forEach(r=>{ const v=firstVal(r[C.JOURNEY]); if(v && v!=='不明' && v!=='なし') jMap[v]=(jMap[v]||0)+1; });
-    const jTop=topN(jMap,10).reverse();
-    destroyChart('journey');
-    charts['journey']=new Chart(document.getElementById('chart-journey'),{
-      type:'bar',
-      data:{labels:jTop.map(d=>d[0]),datasets:[{label:'件数',data:jTop.map(d=>d[1]),backgroundColor:'#9966FF'}]},
-      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-    });
-  }catch(e){ console.error('journey',e); }
-
-  // レバー
-  try{
-    const lMap={};
-    allData.forEach(r=>{ const v=firstVal(r[C.LEVER]); if(v && v!=='不明' && v!=='なし') lMap[v]=(lMap[v]||0)+1; });
-    const lTop=topN(lMap,10).reverse();
-    destroyChart('lever');
-    charts['lever']=new Chart(document.getElementById('chart-lever'),{
-      type:'bar',
-      data:{labels:lTop.map(d=>d[0]),datasets:[{label:'件数',data:lTop.map(d=>d[1]),backgroundColor:'#FF9F40'}]},
-      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-    });
-  }catch(e){ console.error('lever',e); }
-
-  // ★追加：ページ分析（TOP20 + 指標表 + クリックでドリル）
-  try{
-    const pageMap = {}; // page -> count
-    const pageStats = {}; // page -> {total, unresolved, urgentHigh}
-    allData.forEach(r=>{
-      const pages = splitVal(r[C.PAGE]);
-      const res = (r[C.RESOLVE]||'').trim();
-      const urgHigh = splitVal(r[C.URGENCY]).includes('高');
-
-      pages.forEach(p=>{
-        pageMap[p] = (pageMap[p]||0) + 1;
-        if(!pageStats[p]) pageStats[p] = {total:0, unresolved:0, urgentHigh:0};
-        pageStats[p].total++;
-        if (res === '折り返し・調査中') pageStats[p].unresolved++;
-        if (urgHigh) pageStats[p].urgentHigh++;
-      });
-    });
-
-    const top = topN(pageMap, 20); // desc
-    const labels = top.map(d=>d[0]).reverse();
-    const counts = top.map(d=>d[1]).reverse();
-
-    destroyChart('page-top');
-    const ctx = document.getElementById('chart-page-top');
-    charts['page-top'] = new Chart(ctx,{
-      type:'bar',
-      data:{labels, datasets:[{label:'件数', data:counts, backgroundColor:'#36A2EB'}]},
-      options:{
-        indexAxis:'y',
-        responsive:true,
-        plugins:{legend:{display:false}},
-        onClick: (evt, els) => {
-          if(!els || !els.length) return;
-          const i = els[0].index;
-          const pageName = labels[i];
-          setPageDrill(pageName);
-        },
-        scales:{x:{beginAtZero:true}}
-      }
-    });
-
-    // 指標表
-    let html = '<table><thead><tr>' +
-      '<th class="rank-num">#</th><th>ページ</th><th>件数</th><th>未解決率</th><th>高緊急度率</th><th></th></tr></thead><tbody>';
-    const topDesc = top; // already desc
-    topDesc.forEach((d, i)=>{
-      const p = d[0];
-      const st = pageStats[p] || {total:d[1], unresolved:0, urgentHigh:0};
-      const ur = st.total ? (st.unresolved/st.total*100).toFixed(1) : '0.0';
-      const hr = st.total ? (st.urgentHigh/st.total*100).toFixed(1) : '0.0';
-      html += `<tr class="clickable" onclick="setPageDrill('${escapeHtml(p).replace(/'/g,"&#39;")}')">
-        <td class="rank-num">${i+1}</td>
-        <td>${escapeHtml(p)}</td>
-        <td>${st.total}</td>
-        <td>${ur}%</td>
-        <td>${hr}%</td>
-        <td><button class="page-btn" style="padding:4px 10px" onclick="event.stopPropagation(); setPageDrill('${escapeHtml(p).replace(/'/g,"&#39;")}')">絞り込み</button></td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    document.getElementById('page-metrics-wrap').innerHTML = html;
-
-    document.getElementById('page-drill-current').value = pageDrill ? pageDrill : '（なし）';
-  }catch(e){
-    console.error('page analysis', e);
-    document.getElementById('page-metrics-wrap').innerHTML = '<div class="empty">ページ分析の描画に失敗しました</div>';
-  }
-
-  // 顧客の声
-  showVoice(currentVoiceFilter, null);
-
-  // FAQ候補
-  try{
-    const faqMap={};
-    allData.forEach(r=>splitVal(r[C.SUBCAT]).forEach(v=>{ if(v) faqMap[v]=(faqMap[v]||0)+1; }));
-    const faqTop=topN(faqMap,20);
-    let fhtml='<table><thead><tr><th class="rank-num">#</th><th>小区分名</th><th>件数</th></tr></thead><tbody>';
-    faqTop.forEach((d,i)=>{ fhtml += `<tr><td class="rank-num">${i+1}</td><td>${escapeHtml(d[0])}</td><td>${d[1]}</td></tr>`; });
-    fhtml+='</tbody></table>';
-    document.getElementById('faq-wrap').innerHTML=fhtml;
-  }catch(e){ console.error('faq',e); }
-}
-
-function showVoice(type, btn){
-  currentVoiceFilter = type;
-  if(btn){
-    document.querySelectorAll('.voice-tab').forEach(t=>t.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  try{
-    const items = allData.filter(r =>
-      (r[C.RESOLVE]||'').trim()===type &&
-      VALID_OPERATORS.includes((r[C.OP]||'').trim()) &&
-      r[C.VOICE] && r[C.VOICE]!=='不明' && r[C.VOICE]!=='なし'
-    ).slice(0,50);
-
-    if(!items.length){ document.getElementById('voice-list').innerHTML='<div class="empty">データがありません</div>'; return; }
-
-    let html='';
-    items.forEach(r=>{
-      const v = firstVal(r[C.VOICE]);
-      const d = parseDateFlexible(r[C.DATE]);
-      html += `<div class="voice-item"><div class="voice-text">"${escapeHtml(v)}"</div><div class="voice-meta">${escapeHtml(d?d.toLocaleDateString('ja-JP'):'')} | ${escapeHtml(r[C.OP]||'')}</div></div>`;
-    });
-    document.getElementById('voice-list').innerHTML = html;
-  }catch(e){ console.error('voice',e); }
-}
-
-// ===== オペレーター評価（最小限：列名マップ対応）=====
-function updateOperator(){
-  try{
-    if (C.OP==null) return;
-    const opData = allData.filter(r => VALID_OPERATORS.includes((r[C.OP]||'').trim()));
-    const cases = opData.length;
-    const resolved = opData.filter(r => (r[C.RESOLVE]||'').trim()==='解決').length;
-    const scores = opData.map(r=>parseFloat(r[C.OP_TOTAL])).filter(n=>!isNaN(n)&&n>0);
-    const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
-    const resolveRate = cases ? (resolved/cases*100).toFixed(1) : '0.0';
-
-    document.getElementById('okpi-cases').textContent = cases.toLocaleString();
-    document.getElementById('okpi-score').textContent = avgScore;
-    document.getElementById('okpi-resolve').textContent = resolveRate + '%';
-
-    const opStats = {};
-    VALID_OPERATORS.forEach(op => opStats[op]={scores:[], resolved:0, total:0});
-    opData.forEach(r=>{
-      const op=(r[C.OP]||'').trim();
-      if(!opStats[op]) return;
-      opStats[op].total++;
-      if((r[C.RESOLVE]||'').trim()==='解決') opStats[op].resolved++;
-      const s=parseFloat(r[C.OP_TOTAL]); if(!isNaN(s)&&s>0) opStats[op].scores.push(s);
-    });
-
-    const activeOps = VALID_OPERATORS.filter(op=>opStats[op].total>0);
-
-    const grid=document.getElementById('op-grid');
-    let html='';
-    activeOps.forEach(op=>{
-      const st=opStats[op];
-      const avg=st.scores.length?(st.scores.reduce((a,b)=>a+b,0)/st.scores.length).toFixed(1):'-';
-      const rr=st.total?(st.resolved/st.total*100).toFixed(1):'0.0';
-      const barW = avg!=='-' ? (parseFloat(avg)/5*100).toFixed(0) : 0;
-      html += `<div class="op-card"><div class="op-name">${escapeHtml(op)}</div>
-        <div class="op-stats">
-          <div><div class="op-stat-label">平均評価</div><div class="op-stat-value">${escapeHtml(avg)}</div></div>
-          <div><div class="op-stat-label">解決率</div><div class="op-stat-value">${escapeHtml(rr)}%</div></div>
-        </div>
-        <div class="score-bar"><div class="score-fill" style="width:${barW}%"></div></div>
-      </div>`;
-    });
-    grid.innerHTML = html || '<div class="empty">データがありません</div>';
-
-    destroyChart('op-score');
-    charts['op-score']=new Chart(document.getElementById('chart-op-score'),{
-      type:'bar',
-      data:{labels:activeOps, datasets:[{label:'平均OP総合評価', data:activeOps.map(op=>{
-        const st=opStats[op]; return st.scores.length?(st.scores.reduce((a,b)=>a+b,0)/st.scores.length):0;
-      }), backgroundColor:'#667eea'}]},
-      options:{responsive:true,scales:{y:{beginAtZero:true,max:5}},plugins:{legend:{display:false}}}
-    });
-
-    destroyChart('op-resolve');
-    charts['op-resolve']=new Chart(document.getElementById('chart-op-resolve'),{
-      type:'bar',
-      data:{labels:activeOps, datasets:[{label:'解決率(%)', data:activeOps.map(op=>{
-        const st=opStats[op]; return st.total?(st.resolved/st.total*100):0;
-      }), backgroundColor:'#4BC0C0'}]},
-      options:{responsive:true,scales:{y:{beginAtZero:true,max:100}},plugins:{legend:{display:false}}}
-    });
-
-  }catch(e){ console.error('operator',e); }
-}
-
-// ===== CSVエクスポート（ヘッダー行を保持して出す版）=====
+/** =========================
+ *  9) CSVエクスポート（VOC管理用）
+ * ========================= */
 function exportCSV(){
-  // filteredData2 はデータ行（配列）なので、allDataのヘッダーは別途持ってない
-  // → 今回は「入力CSVのヘッダー」を results.data[0] から取っていないため、固定ヘッダーで継続（現状維持）
-  // 必要なら、ヘッダーも保持する実装に拡張可能
-  const headers = ['通話日時','着信先番号','お客様の電話番号','お客様が注文時に使った電話番号','WEBオーダー番号','商品の注文番号','商品名','FAX注文フラグ','オペレーター名','顧客属性','問い合わせ元サイト','大区分NO','大区分名','小区分NO','小区分名','ユーザーの意図(Intent)','意図要約(短)','対象機能(Target Function)','Webサイトのバリア(Barrier)','バリア要約(短)','Web自己解決可能性','推定発生ページ','発生タイミング（自然言語）','発生タイミング（選択）','緊急度','意図ランキング(通話内)','バリアランキング(通話内)','解決ステータス','会話要約','顧客の生の声','OP総合評価','OP知識正確性','OPシステム操作','OP説明分かりやすさ','OP共感・寄り添い','OP傾聴姿勢','OP良かった点','OP改善点','想定カテゴリ軸1','想定カテゴリ軸2','商品カテゴリ'];
-  const rows = [headers, ...filteredData2.map(r=>{
-    const a=[]; for(let i=0;i<headers.length;i++) a.push(r[i] ?? '');
-    return a;
-  })];
-  const csv = rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  // そのまま filteredData2 を吐く（ヘッダーは元CSVの先頭行を保持していないため簡易）
+  const blob = new Blob(
+    ['\uFEFF' + filteredData2.map(r => r.map(v => `"${String(nfkc(v||'')).replace(/"/g,'""')}"`).join(',')).join('\n')],
+    {type:'text/csv;charset=utf-8'}
+  );
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='voc_export.csv';
   a.click();
 }
 
-// ===== ペインポイント（元ロジック流用：必要列が無い場合は空振り）=====
-const PP_COLORS = ['#4E79A7','#F28E2B','#E15759','#76B7B2','#59A14F','#EDC948','#B07AA1','#FF9DA7','#9C755F','#BAB0AC','#66C2A5','#FC8D62'];
-const PP_ICONS = {'Web操作・機能':'🌐','情報不足・不明':'❓','配送・納期':'📦','システム・技術':'⚙️','手続き・注文':'📋','コミュニケーション':'💬','UI・操作性':'🖥️','決済・流通':'💳','商品情報':'🏷️','その他':'📌'};
-let ppData={}, ppActiveIdx=-1, ppChart=null;
-
-function buildPPData(){
-  const rawMap={};
-  allData.forEach(r=>{
-    splitVal(r[C.BARRIER_SHORT]).forEach(v=>{
-      if (v && !NO_ISSUE_KEYWORDS.some(k=>v.includes(k))) rawMap[v]=(rawMap[v]||0)+1;
-    });
-  });
-
-  const CAT_RULES=[
-    ['Web操作・機能',['Web操作','Web上','Web機能','Webで','Web完結','Webサイト','web','Web手順','Web注文','Web経由','WEB']],
-    ['情報不足・不明',['情報','不足','不明','不明瞭','情報なし','確認不可','分からない','不透明','未記載','記載なし','ページ','説明','把握','案内']],
-    ['配送・納期',['配送','納期','発送','追跡','送り状','届','配達','出荷','到着','日程','日時','時間指定']],
-    ['システム・技術',['システム','エラー','不具合','ログイン','認証','遅延','バグ','障害','表示','読み込み']],
-    ['手続き・注文',['手続き','注文','申請','取消','変更','キャンセル','修正','手順','操作','手間','依頼']],
-    ['コミュニケーション',['担当','折り返し','電話','メール','連絡','回答','返答','対応','サポート','問い合わせ']],
-    ['UI・操作性',['UI','ボタン','表示','見にくい','分かりにくい','見つからない','見当たらない','画面','レイアウト','デザイン','見えづらい','導線']],
-    ['決済・流通',['決済','支払','クレジット','請求','振込','掛け払い','ポイント','クーポン','割引']],
-    ['商品情報',['商品','品番','型番','仕様','画像','説明文','カタログ','廃番','代替','在庫']],
-  ];
-  const cats={}; CAT_RULES.forEach(([c])=>cats[c]={total:0,items:[]}); cats['その他']={total:0,items:[]};
-
-  Object.entries(rawMap).forEach(([barrier,count])=>{
-    let assigned=false;
-    for(const [cat,keywords] of CAT_RULES){
-      if(keywords.some(k=>barrier.includes(k))){
-        cats[cat].items.push({barrier,count}); cats[cat].total+=count; assigned=true; break;
-      }
-    }
-    if(!assigned){ cats['その他'].items.push({barrier,count}); cats['その他'].total+=count; }
-  });
-
-  Object.values(cats).forEach(c=>c.items.sort((a,b)=>b.count-a.count));
-  ppData = Object.fromEntries(Object.entries(cats).filter(([,v])=>v.total>0));
-  return ppData;
-}
-
-function updatePainpoint(){
-  try{
-    buildPPData();
-    const cats=Object.keys(ppData);
-    const totals=cats.map(c=>ppData[c].total);
-    const grand=totals.reduce((a,b)=>a+b,0);
-    const allBarriers=Object.values(ppData).flatMap(d=>d.items);
-    const unique=new Set(allBarriers.map(i=>i.barrier)).size;
-    const topCat=cats[totals.indexOf(Math.max(...totals))];
-
-    document.getElementById('pp-kpi-total').textContent = grand.toLocaleString();
-    document.getElementById('pp-kpi-cats').textContent = cats.length;
-    document.getElementById('pp-kpi-top').textContent = (PP_ICONS[topCat]||'')+' '+topCat;
-    document.getElementById('pp-kpi-unique').textContent = unique.toLocaleString();
-
-    if(ppChart){ try{ppChart.destroy()}catch(e){} }
-    const ppCtx=document.getElementById('pp-pie-chart').getContext('2d');
-    ppChart=new Chart(ppCtx,{
-      type:'doughnut',
-      data:{labels:cats, datasets:[{data:totals, backgroundColor:PP_COLORS.slice(0,cats.length), borderColor:'#fff', borderWidth:3, hoverBorderWidth:4, hoverOffset:14}]},
-      options:{responsive:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}件 (${(c.parsed/grand*100).toFixed(1)}%)`}}}, onClick:(e,els)=>{ if(els.length) showPPDetail(cats[els[0].index], els[0].index); }}
-    });
-
-    const grid=document.getElementById('pp-summary-grid');
-    grid.innerHTML='';
-    cats.forEach((cat,i)=>{
-      const pct=(totals[i]/grand*100).toFixed(1);
-      const div=document.createElement('div');
-      div.style.cssText=`padding:10px;border-radius:8px;cursor:pointer;border:2px solid transparent;background:${PP_COLORS[i]}18;transition:all .2s;display:flex;align-items:center;gap:8px`;
-      div.innerHTML=`<span style="font-size:18px">${escapeHtml(PP_ICONS[cat]||'📌')}</span><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#4a5568;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(cat)}</div><div style="font-size:16px;font-weight:800;color:${PP_COLORS[i]}">${totals[i]}<span style="font-size:10px;font-weight:500;margin-left:2px">件</span></div></div><span style="font-size:10px;color:#718096">${pct}%</span>`;
-      div.onclick=()=>showPPDetail(cat,i);
-      div.setAttribute('data-pp-idx',i);
-      grid.appendChild(div);
-    });
-
-    showPPDetail(cats[0],0);
-  }catch(e){ console.error('painpoint chart', e); }
-}
-
-function showPPDetail(cat, idx){
-  document.querySelectorAll('[data-pp-idx]').forEach((el,i)=>{
-    const color=PP_COLORS[i]||'#ccc';
-    el.style.borderColor = (i===idx)?color:'transparent';
-    el.style.boxShadow = (i===idx)?`0 4px 12px ${color}44`:'none';
-  });
-  ppActiveIdx=idx;
-  const color=PP_COLORS[idx]||'#667eea';
-  const d=ppData[cat]; if(!d) return;
-  const maxC=d.items.length?Math.max(...d.items.map(i=>i.count)):1;
-
-  document.getElementById('pp-detail-icon').textContent = PP_ICONS[cat]||'📌';
-  document.getElementById('pp-detail-name').textContent = cat;
-  document.getElementById('pp-detail-badge').textContent = `${d.total}件 / ${d.items.length}バリア`;
-  document.getElementById('pp-detail-badge').style.background = color;
-
-  let h='';
-  d.items.forEach(item=>{
-    const w=maxC? (item.count/maxC*100):0;
-    h += `<div style="display:flex;align-items:center;padding:8px 10px;margin-bottom:5px;border-radius:7px;border:1px solid #e2e8f0;gap:8px">
-      <span style="font-size:12px;color:#2d3748;flex:1;line-height:1.4">${escapeHtml(item.barrier)}</span>
-      <div style="width:70px;flex-shrink:0"><div style="background:#e2e8f0;border-radius:3px;height:5px;overflow:hidden"><div style="width:${w}%;height:100%;background:${color};border-radius:3px;transition:width .4s"></div></div></div>
-      <span style="font-size:11px;font-weight:700;min-width:24px;text-align:center;padding:2px 6px;border-radius:8px;color:#fff;background:${color}">${item.count}</span>
-    </div>`;
-  });
-  document.getElementById('pp-detail-body').innerHTML = h || '<div class="empty">データなし</div>';
-
-  if(ppChart){
-    const cats=Object.keys(ppData);
-    ppChart.data.datasets[0].offset = cats.map((_,i)=>i===idx?18:0);
-    ppChart.update();
-  }
-}
-
-// ===== タブ切替 =====
+/** =========================
+ *  10) タブ切替 & 起動
+ * ========================= */
 function showTab(id, btn){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
@@ -1165,7 +813,6 @@ function showTab(id, btn){
   if(btn) btn.classList.add('active');
 }
 
-// 起動時：./data/all_merged.csv を自動読み込み
 window.addEventListener('load', ()=>{
   const csvPath='./data/all_merged.csv';
   document.getElementById('uploadArea').style.display='block';
@@ -1175,15 +822,16 @@ window.addEventListener('load', ()=>{
     .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
     .then(b=>{
       document.getElementById('uploadArea').style.display='none';
-      const s=document.getElementById('dataStatus'); if(s) s.textContent='📥 読み込み完了';
+      document.getElementById('dataStatus').textContent='📥 読み込み完了';
       parseCSV(new File([b],'all_merged.csv'));
     })
     .catch(e=>{
-      console.error('CSV 自動読み込み失敗:', e);
+      console.error('CSV読込失敗:',e);
       document.getElementById('uploadArea').style.display='none';
       document.getElementById('errorArea').style.display='block';
       const s=document.getElementById('dataStatus');
-      if(s){ s.textContent='⚠️ データなし'; s.style.background='rgba(255,100,100,0.3)'; }
+      s.textContent='⚠️ データなし';
+      s.style.background='rgba(255,100,100,0.3)';
     });
 });
 </script>
