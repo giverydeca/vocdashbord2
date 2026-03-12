@@ -3,1341 +3,1372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOC分析ダッシュボード v2</title>
+    <title>VOC分析ダッシュボード（統合版）</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;background:#f5f7fa;color:#333}
-        .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);padding:20px 40px;display:flex;justify-content:space-between;align-items:center}
-        .header h1{font-size:22px;color:#fff;font-weight:600}
-        .header-meta{display:flex;gap:8px;align-items:center}
-        .nav-tabs{display:flex;background:#fff;border-bottom:1px solid #e1e8ed;box-shadow:0 2px 8px rgba(0,0,0,.1);overflow-x:auto}
-        .nav-tab{flex:1;min-width:120px;padding:14px 16px;background:#fff;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#666;border-bottom:3px solid transparent;transition:all .3s;white-space:nowrap}
-        .nav-tab.active{background:#f8f9ff;color:#667eea;border-bottom-color:#667eea}
-        .nav-tab:hover:not(.active){background:#f8f9fa;color:#333}
-        .tab-content{display:none}.tab-content.active{display:block}
-        .btn{padding:10px 20px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-        .btn-primary{background:#3498db;color:#fff}.btn-primary:hover{background:#2980b9}
-        .btn-secondary{background:#95a5a6;color:#fff}.btn-secondary:hover{background:#7f8c8d}
-        .btn-success{background:#27ae60;color:#fff}.btn-success:hover{background:#219a52}
-        .btn-warning{background:#e67e22;color:#fff}.btn-warning:hover{background:#d35400}
-        .kpi-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin:24px 40px}
-        .kpi-card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e1e8ed;display:flex;align-items:center;gap:14px;transition:all .2s}
-        .kpi-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);border-color:#3498db}
-        .kpi-icon{font-size:36px}.kpi-label{font-size:12px;color:#7f8c8d;margin-bottom:4px;font-weight:500}
-        .kpi-value{font-size:26px;font-weight:700;color:#2c3e50}
-        .kpi-sub{font-size:11px;color:#95a5a6;margin-top:2px}
-        .charts-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px;margin:24px 40px}
-        .chart-container{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e1e8ed}
-        .chart-container h2{font-size:15px;margin-bottom:16px;color:#2c3e50;font-weight:600}
-        .chart-full{grid-column:1/-1}
-        .section{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid #e1e8ed;margin:24px 40px}
-        .section h2{font-size:15px;margin-bottom:16px;color:#2c3e50;font-weight:600}
-        .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
-        .filter-group{display:flex;flex-direction:column;gap:6px}
-        .filter-group label{font-size:13px;font-weight:600;color:#666}
-        .filter-select,.filter-input{padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;min-width:140px}
-        .filter-select:focus,.filter-input:focus{outline:none;border-color:#667eea}
-        table{width:100%;border-collapse:collapse;font-size:13px}
-        th{background:#f8f9fa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e1e8ed;white-space:nowrap}
-        td{padding:9px 12px;border-bottom:1px solid #f0f0f0;color:#333}
-        tr:hover td{background:#f8f9ff}
-        tr.clickable{cursor:pointer}
-        .badge{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;display:inline-block}
-        .badge-resolved{background:#d4edda;color:#155724}
-        .badge-unresolved{background:#fff3cd;color:#856404}
-        .badge-high{background:#f8d7da;color:#721c24}
-        .badge-mid{background:#fff3cd;color:#856404}
-        .badge-low{background:#d1ecf1;color:#0c5460}
-        .badge-call{background:#e8eaf6;color:#3f51b5}
-        .badge-form{background:#e8f5e9;color:#2e7d32}
-        .pagination{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:16px}
-        .page-btn{padding:6px 12px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-size:13px}
-        .page-btn.active{background:#667eea;color:#fff;border-color:#667eea}
-        .page-btn:hover:not(.active){background:#f0f0f0}
-        .modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
-        .modal-content{background:#fff;padding:28px;border-radius:12px;width:90%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative}
-        .modal-close{position:absolute;right:18px;top:14px;font-size:28px;cursor:pointer;color:#aaa;line-height:1}
-        .modal-close:hover{color:#333}
-        .modal-title{font-size:20px;margin-bottom:16px;color:#667eea;font-weight:600}
-        .modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;padding:14px;background:#f8f9ff;border-radius:8px}
-        .modal-field label{font-size:11px;color:#888;font-weight:600;margin-bottom:3px;display:block}
-        .modal-field span{font-size:14px;color:#333}
-        .modal-section{margin-top:16px}
-        .modal-section h3{font-size:15px;margin-bottom:8px;color:#444}
-        .conversation-box{background:#f8f9fa;padding:14px;border-radius:8px;white-space:pre-wrap;font-size:13px;line-height:1.8;max-height:300px;overflow-y:auto}
-        .op-card{background:#fff;padding:18px;border-radius:8px;border:2px solid #f0f0f0;transition:all .3s;cursor:pointer}
-        .op-card:hover{border-color:#667eea;background:#f8f9ff;transform:translateY(-2px)}
-        .op-name{font-size:18px;font-weight:700;color:#2c3e50;margin-bottom:14px;text-align:center}
-        .op-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-        .op-stat-label{font-size:11px;color:#888;margin-bottom:3px}
-        .op-stat-value{font-size:20px;font-weight:700;color:#2c3e50}
-        .score-bar{background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden;margin-top:8px}
-        .score-fill{height:100%;background:linear-gradient(90deg,#667eea,#4BC0C0);transition:width .5s}
-        .op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-        .voice-tabs{display:flex;gap:8px;margin-bottom:14px}
-        .voice-tab{padding:7px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;font-weight:500}
-        .voice-tab.active{background:#667eea;color:#fff;border-color:#667eea}
-        .voice-item{padding:14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:10px}
-        .voice-text{font-size:14px;color:#333;margin-bottom:6px;font-style:italic}
-        .voice-meta{font-size:12px;color:#888}
-        .spinner{border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite;margin:40px auto}
-        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-        .empty{text-align:center;padding:40px;color:#aaa;font-size:15px}
-        .rank-table{width:100%}
-        .rank-num{width:40px;text-align:center;font-weight:700;color:#667eea}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* EC改善レポート専用スタイル */
-        .ec-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-        .ec-tab{padding:10px 20px;border:2px solid #e1e8ed;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
-        .ec-tab.active{background:#667eea;color:#fff;border-color:#667eea}
-        .ec-tab:hover:not(.active){border-color:#667eea;color:#667eea}
-        .ec-content{display:none}.ec-content.active{display:block}
-        .measure-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:24px}
-        .measure-card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e1e8ed;overflow:hidden;transition:all .2s}
-        .measure-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.12);transform:translateY(-2px)}
-        .measure-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-        .measure-header-high{background:linear-gradient(135deg,#ff6b6b,#ee5a24)}
-        .measure-header-mid{background:linear-gradient(135deg,#f9ca24,#f0932b)}
-        .measure-header-low{background:linear-gradient(135deg,#6ab04c,#1e90ff)}
-        .measure-page{font-size:13px;font-weight:700;color:#fff}
-        .measure-priority{font-size:11px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.3);color:#fff;font-weight:600}
-        .measure-body{padding:16px}
-        .measure-count{font-size:28px;font-weight:800;color:#2c3e50;margin-bottom:4px}
-        .measure-count-label{font-size:11px;color:#95a5a6;margin-bottom:12px}
-        .measure-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
-        .measure-label{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:50px;text-align:center;flex-shrink:0;margin-top:1px}
-        .label-situation{background:#ffeaa7;color:#856404}
-        .label-measure{background:#d4edda;color:#155724}
-        .label-effect{background:#cce5ff;color:#004085}
-        .measure-text{font-size:13px;color:#444;line-height:1.6}
-        .page-barrier-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
-        .page-barrier-table th{background:#f8f9fa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e1e8ed}
-        .page-barrier-table td{padding:9px 12px;border-bottom:1px solid #f0f0f0}
-        .progress-bar-wrap{display:flex;align-items:center;gap:8px}
-        .progress-bar{background:#e9ecef;border-radius:4px;height:12px;flex:1;overflow:hidden}
-        .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#667eea,#4BC0C0)}
-        .ec-summary-banner{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:10px;padding:24px;margin-bottom:24px;display:flex;gap:32px;align-items:center;flex-wrap:wrap}
-        .ec-summary-item{text-align:center}
-        .ec-summary-num{font-size:36px;font-weight:800}
-        .ec-summary-label{font-size:12px;opacity:.85;margin-top:4px}
-        .source-indicator{display:inline-flex;gap:4px;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
-        .source-call{background:#e8eaf6;color:#3f51b5}
-        .source-form{background:#e8f5e9;color:#2e7d32}
-        .source-all{background:#f3e5f5;color:#7b1fa2}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
 
-        .pp-colors-def{display:none}
-        @media(max-width:768px){
-            .kpi-section,.charts-section{grid-template-columns:1fr;margin:16px}
-            .section{margin:16px}.header{flex-direction:column;gap:12px;padding:16px}
-            .filters{flex-direction:column}.filter-select,.filter-input{width:100%}
-            .measure-grid{grid-template-columns:1fr}
-            .ec-summary-banner{flex-direction:column;gap:16px}
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .data-source-indicator {
+            padding: 8px 16px;
+            background: rgba(255,255,255,.15);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #e1e8ed;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 14px 20px;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all .3s;
+        }
+
+        .nav-tab.active {
+            background: #f8f9ff;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 24px 40px;
+        }
+
+        .kpi-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border: 1px solid #e1e8ed;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all .2s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+            border-color: #3498db;
+        }
+
+        .kpi-icon {
+            font-size: 36px;
+        }
+
+        .kpi-content {
+            flex: 1;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+            margin: 24px 40px;
+        }
+
+        .chart-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        .chart-container h2 {
+            font-size: 15px;
+            margin-bottom: 16px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .chart-full {
+            grid-column: 1 / -1;
+        }
+
+        .section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border: 1px solid #e1e8ed;
+            margin: 24px 40px;
+        }
+
+        .section h2 {
+            font-size: 15px;
+            margin-bottom: 16px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-select, .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 160px;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e1e8ed;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+
+        tr:hover td {
+            background: #f8f9ff;
+        }
+
+        tr.clickable {
+            cursor: pointer;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-resolved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-unresolved {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-mid {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+
+        .page-btn:hover:not(.active) {
+            background: #f0f0f0;
+        }
+
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 28px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 860px;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 18px;
+            top: 14px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+
+        .modal-field label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .modal-field span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .modal-section {
+            margin-top: 16px;
+        }
+
+        .modal-section h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .conversation-box {
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.8;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .op-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 8px;
+            border: 2px solid #f0f0f0;
+            transition: all .3s;
+            cursor: pointer;
+        }
+
+        .op-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .op-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .op-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .op-stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .op-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .score-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #4BC0C0);
+            transition: width .5s;
+        }
+
+        .op-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #888;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #e74c3c;
+        }
+
+        .data-source-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .source-call {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .source-form {
+            background: #f3e5f5;
+            color: #7b1fa2;
         }
     </style>
 </head>
 <body>
-<div id="app">
-    <header class="header">
-        <h1>📊 VOC分析ダッシュボード</h1>
-        <div class="header-meta">
-            <span id="dataStatus" style="font-size:13px;color:#cce;padding:6px 12px;background:rgba(255,255,255,0.15);border-radius:6px">⏳ データ読み込み中...</span>
+    <div class="header">
+        <h1>📊 VOC分析ダッシュボード（統合版）</h1>
+        <div class="header-controls">
+            <div class="data-source-indicator" id="dataSourceIndicator">
+                📞 通話データのみ
+            </div>
         </div>
-    </header>
-
-    <nav class="nav-tabs">
-        <button class="nav-tab active" onclick="showTab('tab-dashboard',this)">📊 ダッシュボード</button>
-        <button class="nav-tab" onclick="showTab('tab-voc',this)">📋 VOC管理</button>
-        <button class="nav-tab" onclick="showTab('tab-marketing',this)">🎯 マーケティング分析</button>
-        <button class="nav-tab" onclick="showTab('tab-painpoint',this)">🚧 ペインポイント分析</button>
-        <button class="nav-tab" onclick="showTab('tab-operator',this)">👥 オペレーター評価</button>
-        <button class="nav-tab" onclick="showTab('tab-ec',this)">💡 EC改善レポート</button>
-    </nav>
-
-    <div id="uploadArea" style="display:none;margin:40px;padding:60px;text-align:center;">
-        <div class="spinner"></div>
-        <p style="color:#888;margin-top:16px">データを読み込んでいます...</p>
-    </div>
-    <div id="errorArea" style="display:none;margin:40px;padding:40px;text-align:center;background:#fff3f3;border:2px solid #ffaaaa;border-radius:12px;">
-        <div style="font-size:48px">⚠️</div>
-        <p style="color:#c00;font-size:18px;margin:16px 0">データの読み込みに失敗しました</p>
-        <p style="color:#666;font-size:14px"><code>data/all_merged.csv</code> をプロジェクトフォルダに配置してください</p>
-        <p style="color:#888;font-size:13px;margin-top:8px">※ローカルで開く場合は <code>python -m http.server</code> で起動してください</p>
     </div>
 
-    <!-- ダッシュボード -->
-    <div id="tab-dashboard" class="tab-content">
-        <section class="kpi-section">
-            <div class="kpi-card"><div class="kpi-icon">📝</div><div><div class="kpi-label">総問い合わせ件数</div><div class="kpi-value" id="kpi-total">-</div><div class="kpi-sub" id="kpi-source-sub">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">✅</div><div><div class="kpi-label">解決率</div><div class="kpi-value" id="kpi-resolve">-</div><div class="kpi-sub">通話データのみ</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🌐</div><div><div class="kpi-label">Web自己解決可能性（高）</div><div class="kpi-value" id="kpi-selfsolve">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🔴</div><div><div class="kpi-label">高緊急度件数</div><div class="kpi-value" id="kpi-urgent">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🚧</div><div><div class="kpi-label">バリア検出件数</div><div class="kpi-value" id="kpi-barrier">-</div></div></div>
-        </section>
-        <section class="charts-section">
-            <div class="chart-container"><h2>📊 大区分名 TOP10</h2><canvas id="chart-category"></canvas></div>
-            <div class="chart-container"><h2>🔑 重要キーワード TOP15</h2><canvas id="chart-keyword"></canvas></div>
-            <div class="chart-container"><h2>📅 月別件数推移</h2><canvas id="chart-monthly"></canvas></div>
-            <div class="chart-container"><h2>🚦 緊急度分布</h2><canvas id="chart-urgency-dash"></canvas></div>
-        </section>
-        <section class="section">
-            <h2>🔍 フィルター</h2>
-            <div class="filters">
-                <div class="filter-group"><label>ソース種別</label><select id="f-source" class="filter-select"><option value="">すべて</option><option value="通話">📞 通話</option><option value="フォーム">📝 フォーム</option></select></div>
-                <div class="filter-group"><label>大区分名</label><select id="f-category" class="filter-select"><option value="">すべて</option></select></div>
-                <div class="filter-group"><label>緊急度</label><select id="f-urgency" class="filter-select"><option value="">すべて</option><option value="高">🔴 高</option><option value="中">🟡 中</option><option value="低">🟢 低</option></select></div>
-                <div class="filter-group"><label>顧客属性</label><select id="f-cuattr" class="filter-select"><option value="">すべて</option></select></div>
-                <div class="filter-group"><label>開始日</label><input type="date" id="f-date-from" class="filter-input"></div>
-                <div class="filter-group"><label>終了日</label><input type="date" id="f-date-to" class="filter-input"></div>
-                <button class="btn btn-primary" onclick="applyFilter()">適用</button>
-                <button class="btn btn-secondary" onclick="clearFilter()">クリア</button>
-            </div>
-        </section>
-        <section class="section">
-            <h2>📋 VOC一覧</h2>
-            <div id="voc-table-wrap"></div>
-            <div id="voc-pagination" class="pagination"></div>
-        </section>
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('overview')">📈 概要</button>
+        <button class="nav-tab" onclick="switchTab('categories')">📂 カテゴリ分析</button>
+        <button class="nav-tab" onclick="switchTab('operators')">👤 オペレーター分析</button>
+        <button class="nav-tab" onclick="switchTab('details')">📋 詳細データ</button>
     </div>
 
-    <!-- VOC管理 -->
-    <div id="tab-voc" class="tab-content">
-        <section class="section">
-            <h2>🔍 フィルター</h2>
-            <div class="filters">
-                <div class="filter-group"><label>ソース種別</label><select id="f2-source" class="filter-select"><option value="">すべて</option><option value="通話">📞 通話</option><option value="フォーム">📝 フォーム</option></select></div>
-                <div class="filter-group"><label>大区分名</label><select id="f2-category" class="filter-select"><option value="">すべて</option></select></div>
-                <div class="filter-group"><label>解決ステータス</label><select id="f2-resolve" class="filter-select"><option value="">すべて</option><option value="解決">解決</option><option value="折り返し・調査中">折り返し・調査中</option></select></div>
-                <div class="filter-group"><label>緊急度</label><select id="f2-urgency" class="filter-select"><option value="">すべて</option><option value="高">高</option><option value="中">中</option><option value="低">低</option></select></div>
-                <div class="filter-group"><label>推定発生ページ</label><select id="f2-page" class="filter-select"><option value="">すべて</option></select></div>
-                <button class="btn btn-primary" onclick="applyFilter2()">適用</button>
-                <button class="btn btn-secondary" onclick="clearFilter2()">クリア</button>
-                <button class="btn btn-success" onclick="exportCSV()">📥 CSVエクスポート</button>
-            </div>
-        </section>
-        <section class="section">
-            <h2>📋 VOC一覧</h2>
-            <div id="voc2-table-wrap"></div>
-            <div id="voc2-pagination" class="pagination"></div>
-        </section>
+    <!-- 概要タブ -->
+    <div id="overview" class="tab-content active">
+        <div class="kpi-section" id="kpiSection">
+            <div class="loading">データを読み込み中...</div>
+        </div>
+
+        <div class="charts-section" id="chartsSection">
+            <div class="loading">チャートを生成中...</div>
+        </div>
     </div>
 
-    <!-- マーケティング分析 -->
-    <div id="tab-marketing" class="tab-content">
-        <section class="kpi-section">
-            <div class="kpi-card"><div class="kpi-icon">🗂️</div><div><div class="kpi-label">大区分数</div><div class="kpi-value" id="mkpi-cat">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🔴</div><div><div class="kpi-label">高優先度件数</div><div class="kpi-value" id="mkpi-urgent">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🚧</div><div><div class="kpi-label">バリア検出件数</div><div class="kpi-value" id="mkpi-barrier">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">💬</div><div><div class="kpi-label">顧客の生の声件数</div><div class="kpi-value" id="mkpi-voice">-</div></div></div>
-        </section>
-        <section class="charts-section">
-            <div class="chart-container"><h2>🔥 緊急度分布</h2><canvas id="chart-urgency"></canvas></div>
-            <div class="chart-container"><h2>🌐 Web自己解決可能性</h2><canvas id="chart-selfsolve"></canvas></div>
-            <div class="chart-container"><h2>🗺️ 想定カテゴリ軸1 TOP10</h2><canvas id="chart-journey"></canvas></div>
-            <div class="chart-container"><h2>🔧 想定カテゴリ軸2 TOP10</h2><canvas id="chart-lever"></canvas></div>
-        </section>
-        <section class="charts-section">
-            <div class="chart-container chart-full"><h2>🛍️ 商品カテゴリ別分析</h2>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
-                    <canvas id="chart-product"></canvas>
-                    <div id="product-table-wrap"></div>
-                </div>
-            </div>
-        </section>
-        <section class="section">
-            <h2>💬 顧客の生の声</h2>
-            <div class="voice-tabs">
-                <button class="voice-tab active" onclick="showVoice('解決',this)">✅ 解決</button>
-                <button class="voice-tab" onclick="showVoice('折り返し・調査中',this)">🔄 折り返し・調査中</button>
-                <button class="voice-tab" onclick="showVoice('all',this)">📋 全件</button>
-            </div>
-            <div id="voice-list"></div>
-        </section>
-        <section class="section">
-            <h2>❓ FAQ候補 TOP20（小区分名）</h2>
-            <div id="faq-wrap"></div>
-        </section>
-    </div>
-
-    <!-- ペインポイント分析 -->
-    <div id="tab-painpoint" class="tab-content">
-        <section class="kpi-section">
-            <div class="kpi-card"><div class="kpi-icon">🚧</div><div><div class="kpi-label">バリア検出件数</div><div class="kpi-value" id="pp-kpi-total">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">📂</div><div><div class="kpi-label">カテゴリ数</div><div class="kpi-value" id="pp-kpi-cats">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">🔝</div><div><div class="kpi-label">最多カテゴリ</div><div class="kpi-value" id="pp-kpi-top" style="font-size:16px">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">📋</div><div><div class="kpi-label">ユニークバリア数</div><div class="kpi-value" id="pp-kpi-unique">-</div></div></div>
-        </section>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:0 40px 24px">
-            <div>
-                <div class="chart-container" style="margin-bottom:16px">
-                    <h2>📊 カテゴリ別 件数分布</h2>
-                    <div style="display:flex;justify-content:center;align-items:center;min-height:300px">
-                        <canvas id="pp-pie-chart" width="280" height="280" style="cursor:pointer"></canvas>
-                    </div>
-                    <p style="text-align:center;font-size:12px;color:#718096;padding:8px;background:#f7faff;border-top:1px solid #e1e8ed">💡 グラフまたは下のカードをクリックで詳細表示</p>
+    <!-- カテゴリ分析タブ -->
+    <div id="categories" class="tab-content">
+        <div class="section">
+            <h2>📂 大区分・小区分分析</h2>
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h2>大区分別件数</h2>
+                    <canvas id="majorCategoryChart" style="height: 300px;"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h2>📋 カテゴリ一覧</h2>
-                    <div id="pp-summary-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:8px 0"></div>
-                </div>
-            </div>
-            <div class="chart-container" id="pp-detail-panel" style="min-height:500px">
-                <h2 id="pp-detail-title" style="display:flex;align-items:center;gap:8px">
-                    <span id="pp-detail-icon">👆</span>
-                    <span id="pp-detail-name">カテゴリを選択</span>
-                    <span id="pp-detail-badge" style="margin-left:auto;font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;color:#fff;background:#ccc"></span>
-                </h2>
-                <div id="pp-detail-body" style="max-height:600px;overflow-y:auto;margin-top:12px">
-                    <div class="empty">左の円グラフまたはカテゴリカードをクリックすると<br>詳細バリア一覧が表示されます</div>
+                    <h2>小区分別TOP20</h2>
+                    <canvas id="minorCategoryChart" style="height: 300px;"></canvas>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- オペレーター評価 -->
-    <div id="tab-operator" class="tab-content">
-        <div style="margin:16px 40px;padding:12px 16px;background:#e8eaf6;border-radius:8px;font-size:13px;color:#3f51b5;border:1px solid #c5cae9">
-            📞 オペレーター評価は<strong>通話データのみ</strong>を対象としています
-        </div>
-        <section class="kpi-section">
-            <div class="kpi-card"><div class="kpi-icon">👤</div><div><div class="kpi-label">オペレーター数</div><div class="kpi-value" id="okpi-ops">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">📋</div><div><div class="kpi-label">評価対象通話数</div><div class="kpi-value" id="okpi-cases">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">⭐</div><div><div class="kpi-label">平均OP総合評価</div><div class="kpi-value" id="okpi-score">-</div></div></div>
-            <div class="kpi-card"><div class="kpi-icon">✅</div><div><div class="kpi-label">解決率</div><div class="kpi-value" id="okpi-resolve">-</div></div></div>
-        </section>
-        <section class="section">
-            <h2>👥 オペレーター一覧</h2>
-            <div id="op-grid" class="op-grid"></div>
-        </section>
-        <section class="charts-section">
-            <div class="chart-container chart-full"><h2>📊 オペレーター別 平均OP総合評価</h2><canvas id="chart-op-score"></canvas></div>
-            <div class="chart-container chart-full"><h2>✅ オペレーター別 解決率</h2><canvas id="chart-op-resolve"></canvas></div>
-        </section>
-    </div>
-
-    <!-- EC改善レポート（新規） -->
-    <div id="tab-ec" class="tab-content">
-        <section style="margin:24px 40px">
-            <div class="ec-summary-banner" id="ec-banner">
-                <div style="flex:1;min-width:200px">
-                    <div style="font-size:20px;font-weight:700;margin-bottom:6px">💡 EC改善レポート</div>
-                    <div style="font-size:13px;opacity:.9">VOCデータから自動集計した改善施策レポートです。上層部報告・施策立案にご活用ください。</div>
-                </div>
-                <div class="ec-summary-item"><div class="ec-summary-num" id="ec-kpi-total">-</div><div class="ec-summary-label">改善対象バリア件数</div></div>
-                <div class="ec-summary-item"><div class="ec-summary-num" id="ec-kpi-pages">-</div><div class="ec-summary-label">対象ページ数</div></div>
-                <div class="ec-summary-item"><div class="ec-summary-num" id="ec-kpi-high">-</div><div class="ec-summary-label">高優先度件数</div></div>
-            </div>
-
-            <div class="ec-tabs">
-                <button class="ec-tab active" onclick="showEcTab('ec-site',this)">🌐 ECサイト改善</button>
-                <button class="ec-tab" onclick="showEcTab('ec-product',this)">📦 商品改善</button>
-                <button class="ec-tab" onclick="showEcTab('ec-op',this)">🎧 OP対応改善</button>
-                <button class="ec-tab" onclick="showEcTab('ec-page',this)">📄 ページ別詳細分析</button>
-            </div>
-
-            <!-- ECサイト改善 -->
-            <div id="ec-site" class="ec-content active">
-                <div class="measure-grid" id="ec-site-cards"></div>
-            </div>
-
-            <!-- 商品改善 -->
-            <div id="ec-product" class="ec-content">
-                <div class="measure-grid" id="ec-product-cards"></div>
-            </div>
-
-            <!-- OP対応改善 -->
-            <div id="ec-op" class="ec-content">
-                <div class="measure-grid" id="ec-op-cards"></div>
-            </div>
-
-            <!-- ページ別詳細分析 -->
-            <div id="ec-page" class="ec-content">
-                <div class="chart-container" style="margin-bottom:20px">
-                    <h2>📄 推定発生ページ別 バリア件数 TOP15</h2>
-                    <canvas id="chart-page-barrier"></canvas>
+        <div class="section">
+            <h2>🎯 Intent & Barrier分析</h2>
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h2>ユーザー意図（Intent）TOP15</h2>
+                    <canvas id="intentChart" style="height: 300px;"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h2>📋 ページ別 詳細バリア一覧</h2>
-                    <div id="page-barrier-detail"></div>
+                    <h2>Webバリア TOP15</h2>
+                    <canvas id="barrierChart" style="height: 300px;"></canvas>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
-</div>
 
-<!-- 詳細モーダル -->
-<div id="vocModal" class="modal" style="display:none" onclick="if(event.target===this)closeModal()">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <div class="modal-title" id="modal-title">VOC詳細</div>
-        <div id="modal-body"></div>
-    </div>
-</div>
-
-<script>
-// ===== 定数 =====
-const VALID_OPERATORS = ['たちかわ','かわはら','すが','うえだ','たけなか','おち','にしおか','ひさおか','あさい','しば','いちかわ','やまだ','つるい','きむら','すずき','まつやま','かどの','やまさき','もりもと','くろき','むらおか','ふえだ','しんたく','まるおか','しみず','にしやま','ながたけ','とみた','ながかわ','いしはら','おおや','たかはし','たまもり','よしだ','かわばた','やまじ','よこやま','うづき','ほり','おかもと','さとい','かたやま','もり','かたぎり','はせがわ','みずぐち','やすだ','うえの'];
-
-// 通話データCOL（現行維持）
-const COL_CALL = {
-    DATE:0, INBOUND:1, CU_TEL:2, ORDER_TEL:3, WEB_ORDER:4, ORDER_NO:5, PRODUCT:6, FAX:7,
-    OP:8, CU_ATTR:9, SITE:10, CAT_NO:11, CAT:12, SUBCAT_NO:13, SUBCAT:14, INTENT:15,
-    INTENT_SHORT:16, FUNC:17, BARRIER:18, BARRIER_SHORT:19, SELF_SOLVE:20, PAGE:21,
-    TIMING_NL:22, TIMING:23, URGENCY:24, INTENT_RANK:25, BARRIER_RANK:26, RESOLVE:27,
-    SUMMARY:28, VOICE:29, OP_TOTAL:30, OP_KNOWLEDGE:31, OP_SYS:32, OP_EXPLAIN:33,
-    OP_EMPATHY:34, OP_LISTEN:35, OP_GOOD:36, OP_IMPROVE:37,
-    JOURNEY:38, LEVER:39, PRODUCT_CAT:40
-};
-
-// フォームデータCOL
-const COL_FORM = {
-    ID:0, DATE:1, CU_ATTR:2, SITE:3, CAT_NO:4, CAT:5, SUBCAT_NO:6, SUBCAT:7,
-    INTENT:8, INTENT_SHORT:9, FUNC:10, BARRIER:11, BARRIER_SHORT:12, SELF_SOLVE:13,
-    PAGE:14, TIMING:15, WEB_ORDER:16, ORDER_NO:17, PRODUCT:18, KEYWORDS:19,
-    URGENCY:20, SUMMARY:21, VOICE:22, FULLTEXT:23, PRODUCT_CAT:24
-};
-
-// 統一アクセサ（ソースに応じてCOLを切り替え）
-function getField(r, field) {
-    const src = r._source || '通話';
-    if (src === 'フォーム') {
-        const map = {
-            DATE: COL_FORM.DATE, CU_ATTR: COL_FORM.CU_ATTR, SITE: COL_FORM.SITE,
-            CAT_NO: COL_FORM.CAT_NO, CAT: COL_FORM.CAT, SUBCAT_NO: COL_FORM.SUBCAT_NO,
-            SUBCAT: COL_FORM.SUBCAT, INTENT: COL_FORM.INTENT, INTENT_SHORT: COL_FORM.INTENT_SHORT,
-            FUNC: COL_FORM.FUNC, BARRIER: COL_FORM.BARRIER, BARRIER_SHORT: COL_FORM.BARRIER_SHORT,
-            SELF_SOLVE: COL_FORM.SELF_SOLVE, PAGE: COL_FORM.PAGE, TIMING: COL_FORM.TIMING,
-            WEB_ORDER: COL_FORM.WEB_ORDER, ORDER_NO: COL_FORM.ORDER_NO, PRODUCT: COL_FORM.PRODUCT,
-            URGENCY: COL_FORM.URGENCY, VOICE: COL_FORM.VOICE, PRODUCT_CAT: COL_FORM.PRODUCT_CAT,
-            SUMMARY: COL_FORM.SUMMARY, OP: null, RESOLVE: null, OP_TOTAL: null,
-            JOURNEY: null, LEVER: null
-        };
-        const idx = map[field];
-        return idx != null ? (r[idx] || '') : '';
-    } else {
-        const map = {
-            DATE: COL_CALL.DATE, CU_ATTR: COL_CALL.CU_ATTR, SITE: COL_CALL.SITE,
-            CAT_NO: COL_CALL.CAT_NO, CAT: COL_CALL.CAT, SUBCAT_NO: COL_CALL.SUBCAT_NO,
-            SUBCAT: COL_CALL.SUBCAT, INTENT: COL_CALL.INTENT, INTENT_SHORT: COL_CALL.INTENT_SHORT,
-            FUNC: COL_CALL.FUNC, BARRIER: COL_CALL.BARRIER, BARRIER_SHORT: COL_CALL.BARRIER_SHORT,
-            SELF_SOLVE: COL_CALL.SELF_SOLVE, PAGE: COL_CALL.PAGE, TIMING: COL_CALL.TIMING,
-            WEB_ORDER: COL_CALL.WEB_ORDER, ORDER_NO: COL_CALL.ORDER_NO, PRODUCT: COL_CALL.PRODUCT,
-            URGENCY: COL_CALL.URGENCY, VOICE: COL_CALL.VOICE, PRODUCT_CAT: COL_CALL.PRODUCT_CAT,
-            SUMMARY: COL_CALL.SUMMARY, OP: COL_CALL.OP, RESOLVE: COL_CALL.RESOLVE,
-            OP_TOTAL: COL_CALL.OP_TOTAL, JOURNEY: COL_CALL.JOURNEY, LEVER: COL_CALL.LEVER
-        };
-        const idx = map[field];
-        return idx != null ? (r[idx] || '') : '';
-    }
-}
-
-// EC改善施策定義（VOCデータから自動集計 + 事前定義施策）
-const EC_MEASURES = {
-    site: [
-        { page:'注文履歴一覧／詳細', priority:'高', icon:'📋',
-          situation:'注文完了後すぐに注文履歴へ反映されず（最大30分）、顧客が状況確認のために電話をかけてくる。「13件以上が同カテゴリの問い合わせ」',
-          measure:'注文完了ページ・注文履歴ページに「ただいま反映処理中（最大30分）」のステータスバナーを表示。注文完了メールにも反映時間を明記。',
-          effect:'注文履歴関連の電話問い合わせを約40%削減。顧客の不安軽減によりCS満足度向上。',
-          keyword:'注文履歴;反映遅延;状況確認' },
-        { page:'商品ページ（納期表示）', priority:'高', icon:'⏰',
-          situation:'「当日出荷可」表示があるにもかかわらず、日時指定の最短が翌々日になっており、顧客が混乱して電話確認。納期関連の問い合わせが全体の約20%を占める。',
-          measure:'商品ページに出荷締切時刻・現在時刻・在庫数をリアルタイム表示。締切後は自動で「明日以降の出荷」に切り替わるUI実装。',
-          effect:'納期関連の電話問い合わせを約35%削減。在庫超過時の分納案内も自動化で対応工数削減。',
-          keyword:'当日出荷;納期;締切時間;在庫' },
-        { page:'商品ページ（大量注文）', priority:'高', icon:'📦',
-          situation:'在庫数を超える数量を注文したい場合、入荷予定日や分納可否がサイト上で確認できず、電話問い合わせが発生。',
-          measure:'在庫超過時に「次回入荷予定：〇月〇日頃（目安）/ 分納対応可」を商品ページに表示。入荷通知メール登録機能を追加。',
-          effect:'大量注文前の電話問い合わせを約30%削減。機会損失（注文断念）の低減にも寄与。',
-          keyword:'大量注文;在庫超過;入荷予定;分納' },
-        { page:'配送追跡（注文履歴詳細）', priority:'高', icon:'🚚',
-          situation:'配送会社の追跡情報だけでは配達店到着・時間帯が確認できず、「今日届くか」の電話が多発。配送関連は問い合わせの約15%を占める。',
-          measure:'注文履歴詳細に配送会社の追跡リンクを直接埋め込み。配達予定日時の自動通知メール/SMS機能を実装。',
-          effect:'配送状況確認の電話を約45%削減。折り返し対応工数も大幅削減。',
-          keyword:'配送追跡;配達時間;未着;状況確認' },
-        { page:'ご利用ガイド（お届けについて）', priority:'中', icon:'📖',
-          situation:'出荷締切時間が変更（14時→12時）されたが、サイト上での告知が分かりにくく、注文タイミングを誤る顧客が続出。',
-          measure:'トップページ・商品ページ・注文確認ページに出荷締切時間を目立つバナーで常時表示。変更時はポップアップで告知。',
-          effect:'締切時間起因の問い合わせ・クレームを約60%削減。',
-          keyword:'締切時間;14時;12時;当日出荷' },
-        { page:'ログイン/マイページ', priority:'中', icon:'🔑',
-          situation:'ログインできない・パスワードを忘れた際の自己解決率が低く、電話でのサポート依頼が発生している。',
-          measure:'ログインページにチャットボット/FAQへの誘導を追加。パスワードリセット手順をステップ図解で表示。',
-          effect:'ログイン関連の問い合わせを約25%削減。',
-          keyword:'ログイン;パスワード;認証;会員登録' },
-        { page:'お問い合わせフォーム（不良品）', priority:'中', icon:'⚠️',
-          situation:'不良品・破損品が届いた際の写真送付先メールアドレスが分からず、電話問い合わせが必要になっている。',
-          measure:'商品ページ・注文履歴詳細に「不良品・破損の申告はこちら」ボタンを設置。写真アップロード機能付きフォームを実装。',
-          effect:'不良品対応の電話問い合わせを約50%削減。対応履歴のデジタル化によりOP工数削減。',
-          keyword:'不良品;破損;写真送付;メールアドレス' }
-    ],
-    product: [
-        { page:'商品情報（仕様詳細）', priority:'高', icon:'🏷️',
-          situation:'型番・寸法・材質・オプション（バー・棚板等）の詳細情報が不足しており、注文前に電話確認が必要になっている。',
-          measure:'商品ページに型番・寸法・材質・カラー・オプション対応品番を一覧表示。組み合わせシミュレーターを追加。',
-          effect:'商品仕様確認の電話を約35%削減。クロスセル機会の増加。',
-          keyword:'型番;寸法;材質;オプション;仕様' },
-        { page:'在庫・入荷情報', priority:'高', icon:'📊',
-          situation:'人気商品の在庫切れ時に代替品・次回入荷予定が分からず、機会損失が発生している。',
-          measure:'在庫切れ商品に「入荷通知を受け取る」ボタンと代替品レコメンドを表示。入荷予定日をリアルタイム更新。',
-          effect:'在庫切れ起因の問い合わせを約40%削減。機会損失の回収。',
-          keyword:'在庫切れ;入荷予定;代替品;廃番' },
-        { page:'大量注文・見積もり', priority:'中', icon:'📝',
-          situation:'大量注文（100個以上）の際の価格・納期・分納可否について一括で確認できる手段がない。',
-          measure:'「まとめ買い見積もり依頼」フォームを商品ページに設置。数量入力で概算価格・納期を自動表示。',
-          effect:'大量注文前の電話を約30%削減。見積もり対応のOP工数削減。',
-          keyword:'大量注文;見積もり;数量;まとめ買い' }
-    ],
-    op: [
-        { page:'折り返し・調査対応', priority:'高', icon:'🎧',
-          situation:'配送状況確認で折り返しが多発。折り返しの目安時間・連絡手段が伝わっておらず、顧客の不安が残る。',
-          measure:'折り返し案内時に「〇時頃にご連絡します」と具体的な時間を伝える標準スクリプトを導入。SMSによる折り返し通知を追加。',
-          effect:'折り返し起因の再問い合わせを約40%削減。顧客満足度の向上。',
-          keyword:'折り返し;調査中;連絡;目安時間' },
-        { page:'初回ヒアリング精度', priority:'高', icon:'📋',
-          situation:'注文番号・担当者名・要件の聞き漏れにより、再確認・折り返しが発生しているケースがある。',
-          measure:'ヒアリングチェックリスト（注文番号/氏名/連絡先/要件）をOP画面に常時表示。通話開始30秒以内に確認を完了するフローを標準化。',
-          effect:'再確認・折り返しの発生率を約30%削減。通話時間の短縮。',
-          keyword:'ヒアリング;聞き漏れ;注文番号;担当者' },
-        { page:'担当者不在対応', priority:'中', icon:'👤',
-          situation:'担当オペレーター不在時の折り返し対応がケースバイケースで、目安時間・連絡方法が統一されていない。',
-          measure:'不在時の対応フローを統一（折り返し時間帯・連絡手段・バックアップ担当者を明示）。CRMに「不在理由・折り返し予定時刻」を記録。',
-          effect:'担当者不在起因の問い合わせ再発を約35%削減。',
-          keyword:'担当者不在;折り返し;バックアップ;CRM' }
-    ]
-};
-
-const NO_ISSUE_KEYWORDS = ['確認できず','言及なし','発生していない','課題なし','なし','不明','できず','なし（','指摘なし','問題なし'];
-function hasNoIssue(r) {
-    const b = (getField(r,'BARRIER') || '').trim();
-    const bs = (getField(r,'BARRIER_SHORT') || '').trim();
-    if (!b || !bs) return true;
-    return NO_ISSUE_KEYWORDS.some(k => b.includes(k) || bs.includes(k));
-}
-
-let allData = [];
-let filteredData = [];
-let filteredData2 = [];
-let currentPage = 1;
-let currentPage2 = 1;
-const PAGE_SIZE = 20;
-let currentVoiceFilter = '解決';
-const charts = {};
-
-// ===== CSV読み込み・ソース自動判定 =====
-function detectSource(headers) {
-    if (headers.includes('通話日時') || headers.includes('着信先番号')) return '通話';
-    if (headers.includes('お問い合わせ日') || headers.includes('本文(整形済)')) return 'フォーム';
-    // ソース列がある場合
-    if (headers.includes('ソース')) return 'auto';
-    return '通話'; // デフォルト
-}
-
-function parseCSV(file) {
-    Papa.parse(file, {
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            const rows = results.data;
-            if (rows.length < 2) { showError('データが見つかりません'); return; }
-            const headers = rows[0];
-            const src = detectSource(headers);
-            const sourceColIdx = headers.indexOf('ソース');
-
-            allData = rows.slice(1).map(r => {
-                r = [...r];
-                if (src === 'auto' && sourceColIdx >= 0) {
-                    r._source = r[sourceColIdx] || '通話';
-                } else {
-                    r._source = src;
-                }
-                return r;
-            });
-
-            filteredData = [...allData];
-            filteredData2 = [...allData];
-
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-dashboard').classList.add('active');
-            document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i===0));
-
-            const callCount = allData.filter(r => r._source === '通話').length;
-            const formCount = allData.filter(r => r._source === 'フォーム').length;
-            const st = document.getElementById('dataStatus');
-            if(st) st.textContent = '✅ ' + allData.length.toLocaleString() + ' 件';
-            document.getElementById('kpi-source-sub').textContent =
-                `📞通話 ${callCount.toLocaleString()}件 / 📝フォーム ${formCount.toLocaleString()}件`;
-
-            initFilters();
-            updateDashboard();
-            updateMarketing();
-            updateOperator();
-            updatePainpoint();
-            updateEcReport();
-        },
-        error: function(err) { showError('CSVの読み込みに失敗しました: ' + err.message); }
-    });
-}
-
-function showError(msg) {
-    document.getElementById('uploadArea').style.display = 'none';
-    document.getElementById('errorArea').style.display = 'block';
-}
-
-// ===== ユーティリティ =====
-function splitVal(v) { return (v||'').split(';').map(s=>s.trim()).filter(s=>s&&s!=='不明'&&s!=='なし'); }
-function firstVal(v) { return (v||'').split(';')[0].trim(); }
-function parseDate(s) {
-    if (!s || s.length < 8) return null;
-    s = String(s).replace(/\//g, '');
-    if (s.length >= 8) {
-        return new Date(s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+'T00:00:00');
-    }
-    return null;
-}
-function countMap(arr) {
-    const m = {};
-    arr.forEach(v => { if(v) m[v] = (m[v]||0)+1; });
-    return m;
-}
-function topN(m, n) {
-    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n);
-}
-function destroyChart(key) { if (charts[key]) { try { charts[key].destroy(); } catch(e){} charts[key] = null; } }
-
-// ===== フィルター初期化 =====
-function initFilters() {
-    const catSet = new Set();
-    const cuSet = new Set();
-    const pageSet = new Set();
-    allData.forEach(r => {
-        splitVal(getField(r,'CAT')).forEach(v => catSet.add(v));
-        const cu = getField(r,'CU_ATTR'); if(cu && cu!=='不明') cuSet.add(cu);
-        splitVal(getField(r,'PAGE')).forEach(v => pageSet.add(v));
-    });
-    ['f-category','f2-category'].forEach(id => {
-        const sel = document.getElementById(id); if(!sel) return;
-        sel.innerHTML = '<option value="">すべて</option>';
-        [...catSet].sort().forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
-    });
-    ['f-cuattr'].forEach(id => {
-        const sel = document.getElementById(id); if(!sel) return;
-        sel.innerHTML = '<option value="">すべて</option>';
-        [...cuSet].sort().forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
-    });
-    const f2page = document.getElementById('f2-page');
-    if(f2page) {
-        f2page.innerHTML = '<option value="">すべて</option>';
-        [...pageSet].sort().forEach(p => { const o = document.createElement('option'); o.value=p; o.textContent=p; f2page.appendChild(o); });
-    }
-}
-
-// ===== フィルター =====
-function applyFilter() {
-    const src = document.getElementById('f-source').value;
-    const cat = document.getElementById('f-category').value;
-    const urg = document.getElementById('f-urgency').value;
-    const cu = document.getElementById('f-cuattr').value;
-    const df = document.getElementById('f-date-from').value;
-    const dt = document.getElementById('f-date-to').value;
-    filteredData = allData.filter(r => {
-        if (src && r._source !== src) return false;
-        if (cat && !splitVal(getField(r,'CAT')).includes(cat)) return false;
-        if (urg && !splitVal(getField(r,'URGENCY')).includes(urg)) return false;
-        if (cu && getField(r,'CU_ATTR') !== cu) return false;
-        if (df || dt) {
-            const d = parseDate(getField(r,'DATE'));
-            if (!d) return false;
-            if (df && d < new Date(df)) return false;
-            if (dt && d > new Date(dt+'T23:59:59')) return false;
-        }
-        return true;
-    });
-    currentPage = 1; renderVocTable();
-}
-function clearFilter() {
-    ['f-source','f-category','f-urgency','f-cuattr'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    ['f-date-from','f-date-to'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    filteredData = [...allData]; currentPage = 1; renderVocTable();
-}
-function applyFilter2() {
-    const src = document.getElementById('f2-source').value;
-    const cat = document.getElementById('f2-category').value;
-    const res = document.getElementById('f2-resolve').value;
-    const urg = document.getElementById('f2-urgency').value;
-    const pg = document.getElementById('f2-page').value;
-    filteredData2 = allData.filter(r => {
-        if (src && r._source !== src) return false;
-        if (cat && !splitVal(getField(r,'CAT')).includes(cat)) return false;
-        if (res && getField(r,'RESOLVE') !== res) return false;
-        if (urg && !splitVal(getField(r,'URGENCY')).includes(urg)) return false;
-        if (pg && !splitVal(getField(r,'PAGE')).includes(pg)) return false;
-        return true;
-    });
-    currentPage2 = 1; renderVocTable2();
-}
-function clearFilter2() {
-    ['f2-source','f2-category','f2-resolve','f2-urgency','f2-page'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    filteredData2 = [...allData]; currentPage2 = 1; renderVocTable2();
-}
-
-// ===== ダッシュボード =====
-function updateDashboard() {
-    const total = allData.length;
-    const callData = allData.filter(r => r._source === '通話');
-    const resolved = callData.filter(r => getField(r,'RESOLVE')==='解決').length;
-    const resolveRate = callData.length ? (resolved/callData.length*100).toFixed(1) : 0;
-    const selfHigh = allData.filter(r => splitVal(getField(r,'SELF_SOLVE')).includes('高')).length;
-    const urgentCount = allData.filter(r => splitVal(getField(r,'URGENCY')).includes('高')).length;
-    const barrierCount = allData.filter(r => { const v=getField(r,'BARRIER'); return v&&v!=='不明'&&v!=='なし'&&v!==''; }).length;
-
-    document.getElementById('kpi-total').textContent = total.toLocaleString();
-    document.getElementById('kpi-resolve').textContent = resolveRate + '%';
-    document.getElementById('kpi-selfsolve').textContent = selfHigh.toLocaleString();
-    document.getElementById('kpi-urgent').textContent = urgentCount.toLocaleString();
-    document.getElementById('kpi-barrier').textContent = barrierCount.toLocaleString();
-
-    // 大区分 TOP10
-    const catMap = {};
-    allData.forEach(r => splitVal(getField(r,'CAT')).forEach(v => { catMap[v]=(catMap[v]||0)+1; }));
-    const catTop = topN(catMap, 10).reverse();
-    destroyChart('category');
-    charts['category'] = new Chart(document.getElementById('chart-category'), {
-        type:'bar', data:{ labels:catTop.map(d=>d[0]), datasets:[{label:'件数',data:catTop.map(d=>d[1]),backgroundColor:'#36A2EB'}]},
-        options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-    });
-
-    // キーワード TOP15
-    const kwMap = {};
-    allData.forEach(r => {
-        // 通話はINTENT_RANK/BARRIER_RANKから、フォームはKEYWORDS列から
-        let kws = [];
-        if (r._source === 'フォーム') {
-            kws = splitVal(r[COL_FORM.KEYWORDS] || '');
-        } else {
-            kws = [...splitVal(getField(r,'INTENT_SHORT')), ...splitVal(getField(r,'BARRIER_SHORT'))];
-        }
-        kws.forEach(v => { if(v&&v.length>1) kwMap[v]=(kwMap[v]||0)+1; });
-    });
-    const kwTop = topN(kwMap, 15).reverse();
-    destroyChart('keyword');
-    charts['keyword'] = new Chart(document.getElementById('chart-keyword'), {
-        type:'bar', data:{ labels:kwTop.map(d=>d[0]), datasets:[{label:'件数',data:kwTop.map(d=>d[1]),backgroundColor:'#4BC0C0'}]},
-        options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-    });
-
-    // 月別件数
-    const monthMap = {};
-    allData.forEach(r => {
-        const d = parseDate(getField(r,'DATE'));
-        if (d) { const k = d.getFullYear()+'/'+(d.getMonth()+1).toString().padStart(2,'0'); monthMap[k]=(monthMap[k]||0)+1; }
-    });
-    const months = Object.keys(monthMap).sort();
-    destroyChart('monthly');
-    charts['monthly'] = new Chart(document.getElementById('chart-monthly'), {
-        type:'line', data:{labels:months,datasets:[{label:'件数',data:months.map(m=>monthMap[m]),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,.1)',fill:true,tension:.3}]},
-        options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-    });
-
-    // 緊急度
-    const urgMap = {高:0,中:0,低:0};
-    allData.forEach(r => splitVal(getField(r,'URGENCY')).forEach(v => { if(urgMap[v]!==undefined) urgMap[v]++; }));
-    destroyChart('urgency-dash');
-    charts['urgency-dash'] = new Chart(document.getElementById('chart-urgency-dash'), {
-        type:'doughnut', data:{labels:Object.keys(urgMap),datasets:[{data:Object.values(urgMap),backgroundColor:['#FF6384','#FFCE56','#4BC0C0']}]},
-        options:{responsive:true,plugins:{legend:{position:'bottom'}}}
-    });
-
-    renderVocTable();
-}
-
-// ===== VOCテーブル =====
-function renderVocTable() {
-    const data = filteredData;
-    const total = data.length;
-    const maxPage = Math.ceil(total / PAGE_SIZE) || 1;
-    if (currentPage > maxPage) currentPage = maxPage;
-    const slice = data.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
-    const wrap = document.getElementById('voc-table-wrap');
-    if (!slice.length) { wrap.innerHTML='<div class="empty">データがありません</div>'; document.getElementById('voc-pagination').innerHTML=''; return; }
-    let html = '<table><thead><tr><th>日時</th><th>ソース</th><th>顧客属性</th><th>大区分名</th><th>小区分名</th><th>意図要約</th><th>緊急度</th><th>解決</th></tr></thead><tbody>';
-    slice.forEach((r) => {
-        const d = parseDate(getField(r,'DATE'));
-        const dateStr = d ? d.toLocaleDateString('ja-JP') : getField(r,'DATE');
-        const src = r._source || '通話';
-        const urg = firstVal(getField(r,'URGENCY'));
-        const res = getField(r,'RESOLVE');
-        const urgClass = urg==='高'?'badge-high':urg==='中'?'badge-mid':'badge-low';
-        const srcClass = src==='通話'?'badge-call':'badge-form';
-        html += `<tr class="clickable" onclick="showDetail(${allData.indexOf(r)})">
-            <td>${dateStr}</td>
-            <td><span class="badge ${srcClass}">${src==='通話'?'📞 通話':'📝 フォーム'}</span></td>
-            <td>${getField(r,'CU_ATTR')||'-'}</td>
-            <td>${firstVal(getField(r,'CAT'))||'-'}</td>
-            <td>${firstVal(getField(r,'SUBCAT'))||'-'}</td>
-            <td style="max-width:200px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${firstVal(getField(r,'INTENT_SHORT'))||'-'}</td>
-            <td><span class="badge ${urgClass}">${urg||'-'}</span></td>
-            <td>${res ? `<span class="badge ${res==='解決'?'badge-resolved':'badge-unresolved'}">${res}</span>` : '-'}</td>
-        </tr>`;
-    });
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
-    renderPagination('voc-pagination', currentPage, maxPage, p => { currentPage=p; renderVocTable(); });
-}
-
-function renderVocTable2() {
-    const data = filteredData2;
-    const total = data.length;
-    const maxPage = Math.ceil(total / PAGE_SIZE) || 1;
-    if (currentPage2 > maxPage) currentPage2 = maxPage;
-    const slice = data.slice((currentPage2-1)*PAGE_SIZE, currentPage2*PAGE_SIZE);
-    const wrap = document.getElementById('voc2-table-wrap');
-    if (!slice.length) { wrap.innerHTML='<div class="empty">データがありません</div>'; document.getElementById('voc2-pagination').innerHTML=''; return; }
-    let html = '<table><thead><tr><th>日時</th><th>ソース</th><th>顧客属性</th><th>大区分名</th><th>小区分名</th><th>意図要約</th><th>緊急度</th><th>推定発生ページ</th><th>解決</th></tr></thead><tbody>';
-    slice.forEach((r) => {
-        const d = parseDate(getField(r,'DATE'));
-        const dateStr = d ? d.toLocaleDateString('ja-JP') : getField(r,'DATE');
-        const src = r._source || '通話';
-        const urg = firstVal(getField(r,'URGENCY'));
-        const res = getField(r,'RESOLVE');
-        const urgClass = urg==='高'?'badge-high':urg==='中'?'badge-mid':'badge-low';
-        const srcClass = src==='通話'?'badge-call':'badge-form';
-        html += `<tr class="clickable" onclick="showDetail(${allData.indexOf(r)})">
-            <td>${dateStr}</td>
-            <td><span class="badge ${srcClass}">${src==='通話'?'📞':'📝'}</span></td>
-            <td>${getField(r,'CU_ATTR')||'-'}</td>
-            <td>${firstVal(getField(r,'CAT'))||'-'}</td>
-            <td>${firstVal(getField(r,'SUBCAT'))||'-'}</td>
-            <td style="max-width:160px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${firstVal(getField(r,'INTENT_SHORT'))||'-'}</td>
-            <td><span class="badge ${urgClass}">${urg||'-'}</span></td>
-            <td style="max-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${firstVal(getField(r,'PAGE'))||'-'}</td>
-            <td>${res ? `<span class="badge ${res==='解決'?'badge-resolved':'badge-unresolved'}">${res}</span>` : '-'}</td>
-        </tr>`;
-    });
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
-    renderPagination('voc2-pagination', currentPage2, maxPage, p => { currentPage2=p; renderVocTable2(); });
-}
-
-function renderPagination(id, cur, max, cb) {
-    const el = document.getElementById(id);
-    if (max <= 1) { el.innerHTML=''; return; }
-    let html = '';
-    if (cur > 1) html += `<button class="page-btn" onclick="(${cb})(${cur-1})">◀</button>`;
-    const start = Math.max(1, cur-2), end = Math.min(max, cur+2);
-    if (start > 1) html += `<button class="page-btn" onclick="(${cb})(1)">1</button>${start>2?'<span>…</span>':''}`;
-    for (let p=start; p<=end; p++) html += `<button class="page-btn${p===cur?' active':''}" onclick="(${cb})(${p})">${p}</button>`;
-    if (end < max) html += `${end<max-1?'<span>…</span>':''}<button class="page-btn" onclick="(${cb})(${max})">${max}</button>`;
-    if (cur < max) html += `<button class="page-btn" onclick="(${cb})(${cur+1})">▶</button>`;
-    el.innerHTML = html;
-}
-
-// ===== 詳細モーダル =====
-function showDetail(idx) {
-    const r = allData[idx];
-    if (!r) return;
-    const d = parseDate(getField(r,'DATE'));
-    const src = r._source || '通話';
-    document.getElementById('modal-title').textContent = `${src==='通話'?'📞 通話':'📝 フォーム'}詳細 #${idx+1}`;
-    const isCall = src === '通話';
-    const fields = [
-        ['日時', d ? d.toLocaleString('ja-JP') : getField(r,'DATE')],
-        ['ソース', src],
-        ['顧客属性', getField(r,'CU_ATTR')],
-        ['問い合わせ元サイト', getField(r,'SITE')],
-        ['大区分名', getField(r,'CAT')],
-        ['小区分名', getField(r,'SUBCAT')],
-        ['緊急度', getField(r,'URGENCY')],
-        ['Web自己解決可能性', getField(r,'SELF_SOLVE')],
-        ['推定発生ページ', getField(r,'PAGE')],
-        ['商品名', getField(r,'PRODUCT')],
-        ['商品カテゴリ', getField(r,'PRODUCT_CAT')],
-        ...(isCall ? [
-            ['オペレーター', getField(r,'OP')],
-            ['解決ステータス', getField(r,'RESOLVE')],
-            ['OP総合評価', getField(r,'OP_TOTAL')]
-        ] : [])
-    ];
-    let html = '<div class="modal-grid">';
-    fields.forEach(([l,v]) => { html += `<div class="modal-field"><label>${l}</label><span>${v||'-'}</span></div>`; });
-    html += '</div>';
-    const sections = [
-        ['ユーザーの意図', getField(r,'INTENT')],
-        ['意図要約', getField(r,'INTENT_SHORT')],
-        ['Webサイトのバリア', getField(r,'BARRIER')],
-        ['バリア要約', getField(r,'BARRIER_SHORT')],
-        ['問い合わせ要約', getField(r,'SUMMARY')],
-        ['顧客の生の声', getField(r,'VOICE')],
-        ...(isCall ? [
-            ['OP良かった点', getField(r,'OP_GOOD')],
-            ['OP改善点', getField(r,'OP_IMPROVE')]
-        ] : [
-            ['本文(整形済)', r[COL_FORM.FULLTEXT] || '']
-        ])
-    ];
-    sections.forEach(([l,v]) => {
-        if (v && v !== '不明' && v !== 'なし') {
-            html += `<div class="modal-section"><h3>${l}</h3><div class="conversation-box">${(v||'').replace(/</g,'&lt;')}</div></div>`;
-        }
-    });
-    document.getElementById('modal-body').innerHTML = html;
-    document.getElementById('vocModal').style.display = 'flex';
-}
-function closeModal() { document.getElementById('vocModal').style.display = 'none'; }
-
-// ===== マーケティング =====
-function updateMarketing() {
-    try {
-        const catSet = new Set();
-        allData.forEach(r => splitVal(getField(r,'CAT')).forEach(v => catSet.add(v)));
-        document.getElementById('mkpi-cat').textContent = catSet.size;
-        document.getElementById('mkpi-urgent').textContent = allData.filter(r => splitVal(getField(r,'URGENCY')).includes('高')).length.toLocaleString();
-        document.getElementById('mkpi-barrier').textContent = allData.filter(r => { const v=getField(r,'BARRIER'); return v&&v!=='不明'&&v!=='なし'&&v!==''; }).length.toLocaleString();
-        document.getElementById('mkpi-voice').textContent = allData.filter(r => { const v=getField(r,'VOICE'); return v&&v!=='不明'&&v!=='なし'&&v!==''; }).length.toLocaleString();
-    } catch(e) { console.error('mkpi', e); }
-
-    try {
-        const urgMap = {高:0,中:0,低:0};
-        allData.forEach(r => splitVal(getField(r,'URGENCY')).forEach(v => { if(urgMap[v]!==undefined) urgMap[v]++; }));
-        destroyChart('urgency');
-        charts['urgency'] = new Chart(document.getElementById('chart-urgency'), {
-            type:'doughnut', data:{labels:Object.keys(urgMap),datasets:[{data:Object.values(urgMap),backgroundColor:['#FF6384','#FFCE56','#4BC0C0']}]},
-            options:{responsive:true,plugins:{legend:{position:'bottom'}}}
-        });
-    } catch(e){}
-
-    try {
-        const ssMap = {高:0,中:0,低:0};
-        allData.forEach(r => splitVal(getField(r,'SELF_SOLVE')).forEach(v => { if(ssMap[v]!==undefined) ssMap[v]++; }));
-        destroyChart('selfsolve');
-        charts['selfsolve'] = new Chart(document.getElementById('chart-selfsolve'), {
-            type:'bar', data:{labels:Object.keys(ssMap),datasets:[{label:'件数',data:Object.values(ssMap),backgroundColor:['#4BC0C0','#FFCE56','#FF6384']}]},
-            options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-        });
-    } catch(e){}
-
-    try {
-        const jMap = {};
-        allData.forEach(r => { const v=firstVal(getField(r,'JOURNEY')); if(v&&v!=='不明'&&v!=='なし') jMap[v]=(jMap[v]||0)+1; });
-        const jTop = topN(jMap,10).reverse();
-        destroyChart('journey');
-        charts['journey'] = new Chart(document.getElementById('chart-journey'), {
-            type:'bar', data:{labels:jTop.map(d=>d[0]),datasets:[{label:'件数',data:jTop.map(d=>d[1]),backgroundColor:'#9966FF'}]},
-            options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-        });
-    } catch(e){}
-
-    try {
-        const lMap = {};
-        allData.forEach(r => { const v=firstVal(getField(r,'LEVER')); if(v&&v!=='不明'&&v!=='なし') lMap[v]=(lMap[v]||0)+1; });
-        const lTop = topN(lMap,10).reverse();
-        destroyChart('lever');
-        charts['lever'] = new Chart(document.getElementById('chart-lever'), {
-            type:'bar', data:{labels:lTop.map(d=>d[0]),datasets:[{label:'件数',data:lTop.map(d=>d[1]),backgroundColor:'#FF9F40'}]},
-            options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-        });
-    } catch(e){}
-
-    try {
-        const pcMap = {};
-        allData.forEach(r => { const v=(getField(r,'PRODUCT_CAT')||'').trim(); if(v&&v!=='不明'&&v!=='なし') pcMap[v]=(pcMap[v]||0)+1; });
-        const pcAll = Object.entries(pcMap).sort((a,b)=>b[1]-a[1]);
-        const total = pcAll.reduce((s,d)=>s+d[1],0);
-        const top14 = pcAll.slice(0,14);
-        const otherSum = pcAll.slice(14).reduce((s,d)=>s+d[1],0);
-        const chartData = otherSum > 0 ? [...top14, ['その他', otherSum]] : top14;
-        const colors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#7FBF7F','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8'];
-        destroyChart('product');
-        charts['product'] = new Chart(document.getElementById('chart-product'), {
-            type:'pie', data:{labels:chartData.map(d=>d[0]),datasets:[{data:chartData.map(d=>d[1]),backgroundColor:colors.slice(0,chartData.length),borderWidth:2,borderColor:'#fff'}]},
-            options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:8}}}}
-        });
-        let thtml = '<table class="rank-table"><thead><tr><th class="rank-num">#</th><th>カテゴリ</th><th>件数</th><th>割合</th></tr></thead><tbody>';
-        pcAll.slice(0,20).forEach((d,i) => { thtml += `<tr><td class="rank-num">${i+1}</td><td>${d[0]}</td><td>${d[1]}</td><td>${total?(d[1]/total*100).toFixed(1):'0'}%</td></tr>`; });
-        thtml += '</tbody></table>';
-        document.getElementById('product-table-wrap').innerHTML = thtml;
-    } catch(e){}
-
-    showVoice(currentVoiceFilter, null);
-
-    try {
-        const faqMap = {};
-        allData.forEach(r => splitVal(getField(r,'SUBCAT')).forEach(v => { if(v) faqMap[v]=(faqMap[v]||0)+1; }));
-        const faqTop = topN(faqMap,20);
-        let fhtml = '<table><thead><tr><th class="rank-num">#</th><th>小区分名</th><th>件数</th></tr></thead><tbody>';
-        faqTop.forEach((d,i) => { fhtml += `<tr><td class="rank-num">${i+1}</td><td>${d[0]}</td><td>${d[1]}</td></tr>`; });
-        fhtml += '</tbody></table>';
-        document.getElementById('faq-wrap').innerHTML = fhtml;
-    } catch(e){}
-}
-
-function showVoice(type, btn) {
-    currentVoiceFilter = type;
-    if (btn) {
-        document.querySelectorAll('.voice-tab').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-    }
-    try {
-        let items;
-        if (type === 'all') {
-            items = allData.filter(r => { const v=getField(r,'VOICE'); return v&&v!=='不明'&&v!=='なし'; }).slice(0,50);
-        } else {
-            items = allData.filter(r => getField(r,'RESOLVE') === type && getField(r,'VOICE') && getField(r,'VOICE')!=='不明' && getField(r,'VOICE')!=='なし').slice(0,50);
-        }
-        if (!items.length) { document.getElementById('voice-list').innerHTML='<div class="empty">データがありません</div>'; return; }
-        let html = '';
-        items.forEach(r => {
-            const v = firstVal(getField(r,'VOICE'));
-            const d = parseDate(getField(r,'DATE'));
-            const src = r._source || '通話';
-            html += `<div class="voice-item"><div class="voice-text">"${v}"</div><div class="voice-meta">${d?d.toLocaleDateString('ja-JP'):''} | <span class="badge ${src==='通話'?'badge-call':'badge-form'}">${src}</span> | ${getField(r,'CU_ATTR')||''}</div></div>`;
-        });
-        document.getElementById('voice-list').innerHTML = html;
-    } catch(e) { console.error('voice', e); }
-}
-
-// ===== オペレーター評価 =====
-function updateOperator() {
-    try {
-        const opData = allData.filter(r => r._source === '通話' && VALID_OPERATORS.includes(getField(r,'OP')));
-        const cases = opData.length;
-        const resolved = opData.filter(r => getField(r,'RESOLVE')==='解決').length;
-        const scores = opData.map(r => parseInt(getField(r,'OP_TOTAL'))).filter(n => !isNaN(n) && n > 0);
-        const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
-        const resolveRate = cases ? (resolved/cases*100).toFixed(1) : 0;
-        const activeOpSet = new Set(opData.map(r => getField(r,'OP')));
-        document.getElementById('okpi-ops').textContent = activeOpSet.size;
-        document.getElementById('okpi-cases').textContent = cases.toLocaleString();
-        document.getElementById('okpi-score').textContent = avgScore;
-        document.getElementById('okpi-resolve').textContent = resolveRate + '%';
-
-        const opStats = {};
-        VALID_OPERATORS.forEach(op => { opStats[op] = {scores:[], resolved:0, total:0}; });
-        opData.forEach(r => {
-            const op = getField(r,'OP');
-            if (!opStats[op]) return;
-            opStats[op].total++;
-            if (getField(r,'RESOLVE')==='解決') opStats[op].resolved++;
-            const s = parseInt(getField(r,'OP_TOTAL'));
-            if (!isNaN(s) && s > 0) opStats[op].scores.push(s);
-        });
-
-        const activeOps = VALID_OPERATORS.filter(op => opStats[op].total > 0);
-        const grid = document.getElementById('op-grid');
-        let html = '';
-        activeOps.forEach(op => {
-            const st = opStats[op];
-            const avg = st.scores.length ? (st.scores.reduce((a,b)=>a+b,0)/st.scores.length).toFixed(1) : '-';
-            const rRate = st.total ? (st.resolved/st.total*100).toFixed(1) : 0;
-            const barW = avg !== '-' ? (parseFloat(avg)/5*100).toFixed(0) : 0;
-            html += `<div class="op-card">
-                <div class="op-name">${op}</div>
-                <div class="op-stats">
-                    <div><div class="op-stat-label">平均評価</div><div class="op-stat-value">${avg}</div></div>
-                    <div><div class="op-stat-label">解決率</div><div class="op-stat-value">${rRate}%</div></div>
+    <!-- オペレーター分析タブ -->
+    <div id="operators" class="tab-content">
+        <div class="section">
+            <h2>👤 オペレーター別パフォーマンス</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>ソート基準</label>
+                    <select class="filter-select" id="opSortBy" onchange="renderOperators()">
+                        <option value="count">対応件数</option>
+                        <option value="avgScore">平均スコア</option>
+                        <option value="knowledge">知識正確性</option>
+                        <option value="system">システム操作</option>
+                        <option value="clarity">説明分かりやすさ</option>
+                    </select>
                 </div>
-                <div class="op-stat-label">件数: ${st.total}</div>
-                <div class="score-bar"><div class="score-fill" style="width:${barW}%"></div></div>
-            </div>`;
-        });
-        grid.innerHTML = html || '<div class="empty">データがありません</div>';
+            </div>
+            <div class="op-grid" id="operatorGrid">
+                <div class="loading">データを読み込み中...</div>
+            </div>
+        </div>
+    </div>
 
-        destroyChart('op-score');
-        charts['op-score'] = new Chart(document.getElementById('chart-op-score'), {
-            type:'bar',
-            data:{ labels:activeOps, datasets:[{label:'平均OP総合評価',data:activeOps.map(op => {
-                const st=opStats[op]; return st.scores.length?(st.scores.reduce((a,b)=>a+b,0)/st.scores.length).toFixed(2):0;
-            }),backgroundColor:'#667eea'}]},
-            options:{responsive:true,scales:{y:{beginAtZero:true,max:5}},plugins:{legend:{display:false}}}
-        });
-        destroyChart('op-resolve');
-        charts['op-resolve'] = new Chart(document.getElementById('chart-op-resolve'), {
-            type:'bar',
-            data:{ labels:activeOps, datasets:[{label:'解決率(%)',data:activeOps.map(op => {
-                const st=opStats[op]; return st.total?(st.resolved/st.total*100).toFixed(1):0;
-            }),backgroundColor:'#4BC0C0'}]},
-            options:{responsive:true,scales:{y:{beginAtZero:true,max:100}},plugins:{legend:{display:false}}}
-        });
-    } catch(e) { console.error('operator', e); }
-}
+    <!-- 詳細データタブ -->
+    <div id="details" class="tab-content">
+        <div class="section">
+            <h2>🔍 フィルター</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>データソース</label>
+                    <select class="filter-select" id="filterDataSource" onchange="applyFilters()">
+                        <option value="all">全て</option>
+                        <option value="call">通話データ</option>
+                        <option value="form">フォームデータ</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>大区分</label>
+                    <select class="filter-select" id="filterMajorCategory" onchange="applyFilters()">
+                        <option value="">全て</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>緊急度</label>
+                    <select class="filter-select" id="filterUrgency" onchange="applyFilters()">
+                        <option value="">全て</option>
+                        <option value="高">高</option>
+                        <option value="中">中</option>
+                        <option value="低">低</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>キーワード検索</label>
+                    <input type="text" class="filter-input" id="filterKeyword" placeholder="キーワードで検索" onkeyup="applyFilters()">
+                </div>
+                <button class="btn btn-secondary" onclick="resetFilters()">リセット</button>
+            </div>
+        </div>
 
-// ===== ペインポイント分析 =====
-const PP_COLORS = ['#4E79A7','#F28E2B','#E15759','#76B7B2','#59A14F','#EDC948','#B07AA1','#FF9DA7','#9C755F','#BAB0AC','#66C2A5','#FC8D62'];
-const PP_ICONS = {'Web操作・機能':'🌐','情報不足・不明':'❓','配送・納期':'📦','システム・技術':'⚙️','手続き・注文':'📋','コミュニケーション':'💬','UI・操作性':'🖥️','決済・流通':'💳','商品情報':'🏷️','その他':'📌'};
-let ppData = {};
-let ppChart = null;
+        <div class="section">
+            <h2>📋 データ一覧 (<span id="recordCount">0</span>件)</h2>
+            <div style="overflow-x: auto;">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>日時</th>
+                            <th>ソース</th>
+                            <th>大区分</th>
+                            <th>小区分</th>
+                            <th>Intent</th>
+                            <th>緊急度</th>
+                            <th>要約</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr><td colspan="8" class="loading">データを読み込み中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
 
-function buildPPData() {
-    const rawMap = {};
-    allData.forEach(r => {
-        splitVal(getField(r,'BARRIER_SHORT')).forEach(v => {
-            if (v && !NO_ISSUE_KEYWORDS.some(k => v.includes(k))) {
-                rawMap[v] = (rawMap[v]||0) + 1;
-            }
-        });
-    });
-    const CAT_RULES = [
-        ['Web操作・機能',    ['Web操作','Web上','Web機能','Webで','Web完結','Webサイト','web','Web手順','Web注文','Web経由','WEB']],
-        ['情報不足・不明',   ['情報','不足','不明','不明瞭','情報なし','確認不可','分からない','不透明','未記載','記載なし','ページ','説明','把握','案内']],
-        ['配送・納期',       ['配送','納期','発送','追跡','送り状','届','配達','出荷','到着','日程','日時','時間指定']],
-        ['システム・技術',   ['システム','エラー','不具合','ログイン','認証','遅延','バグ','障害','表示','読み込み']],
-        ['手続き・注文',     ['手続き','注文','申請','取消','変更','キャンセル','修正','手順','操作','手間','依頼']],
-        ['コミュニケーション',['担当','折り返し','電話','メール','連絡','回答','返答','対応','サポート','問い合わせ']],
-        ['UI・操作性',       ['UI','ボタン','表示','見にくい','分かりにくい','見つからない','見当たらない','画面','レイアウト','導線']],
-        ['決済・流通',       ['決済','支払','クレジット','請求','振込','掛け払い','ポイント','クーポン']],
-        ['商品情報',         ['商品','品番','型番','仕様','画像','説明文','カタログ','廃番','代替','在庫']],
-    ];
-    const cats = {};
-    CAT_RULES.forEach(([cat]) => { cats[cat] = {total:0, items:[]}; });
-    cats['その他'] = {total:0, items:[]};
-    Object.entries(rawMap).forEach(([barrier, count]) => {
-        let assigned = false;
-        for (const [cat, keywords] of CAT_RULES) {
-            if (keywords.some(k => barrier.includes(k))) {
-                cats[cat].items.push({barrier, count});
-                cats[cat].total += count;
-                assigned = true;
-                break;
-            }
-        }
-        if (!assigned) { cats['その他'].items.push({barrier, count}); cats['その他'].total += count; }
-    });
-    Object.values(cats).forEach(cat => cat.items.sort((a,b) => b.count - a.count));
-    ppData = Object.fromEntries(Object.entries(cats).filter(([,v]) => v.total > 0));
-    return ppData;
-}
+    <!-- 詳細モーダル -->
+    <div id="detailModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-title" id="modalTitle">通話詳細</div>
+            <div class="modal-grid" id="modalFields"></div>
+            <div class="modal-section">
+                <h3>会話全文</h3>
+                <div class="conversation-box" id="modalConversation"></div>
+            </div>
+        </div>
+    </div>
 
-function updatePainpoint() {
-    try {
-        buildPPData();
-        const cats = Object.keys(ppData);
-        const totals = cats.map(c => ppData[c].total);
-        const grand = totals.reduce((a,b)=>a+b,0);
-        const allBarriers = Object.values(ppData).flatMap(d => d.items);
-        const unique = new Set(allBarriers.map(i => i.barrier)).size;
-        const topCat = cats[totals.indexOf(Math.max(...totals))];
-        document.getElementById('pp-kpi-total').textContent = grand.toLocaleString();
-        document.getElementById('pp-kpi-cats').textContent = cats.length;
-        document.getElementById('pp-kpi-top').textContent = (PP_ICONS[topCat]||'') + ' ' + topCat;
-        document.getElementById('pp-kpi-unique').textContent = unique.toLocaleString();
+    <script>
+        // グローバル変数
+        let allData = {
+            calls: [],  // 通話データ
+            forms: []   // フォームデータ（後で追加）
+        };
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let charts = {};
 
-        if (ppChart) { try { ppChart.destroy(); } catch(e){} }
-        const ppCtx = document.getElementById('pp-pie-chart').getContext('2d');
-        ppChart = new Chart(ppCtx, {
-            type: 'doughnut',
-            data: { labels:cats, datasets:[{data:totals, backgroundColor:PP_COLORS.slice(0,cats.length), borderColor:'#fff', borderWidth:3, hoverOffset:14}]},
-            options: { responsive:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}件 (${(c.parsed/grand*100).toFixed(1)}%)`}}},
-                onClick:(e,els) => { if(els.length > 0) showPPDetail(cats[els[0].index], els[0].index); }
-            }
-        });
-
-        const grid = document.getElementById('pp-summary-grid');
-        grid.innerHTML = '';
-        cats.forEach((cat, i) => {
-            const pct = (totals[i]/grand*100).toFixed(1);
-            const div = document.createElement('div');
-            div.style.cssText = `padding:10px;border-radius:8px;cursor:pointer;border:2px solid transparent;background:${PP_COLORS[i]}18;transition:all .2s;display:flex;align-items:center;gap:8px`;
-            div.innerHTML = `<span style="font-size:18px">${PP_ICONS[cat]||'📌'}</span><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;color:#4a5568;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</div><div style="font-size:16px;font-weight:800;color:${PP_COLORS[i]}">${totals[i]}<span style="font-size:10px;font-weight:500;margin-left:2px">件</span></div></div><span style="font-size:10px;color:#718096">${pct}%</span>`;
-            div.onclick = () => showPPDetail(cat, i);
-            div.setAttribute('data-pp-idx', i);
-            grid.appendChild(div);
-        });
-        showPPDetail(cats[0], 0);
-    } catch(e) { console.error('painpoint', e); }
-}
-
-function showPPDetail(cat, idx) {
-    document.querySelectorAll('[data-pp-idx]').forEach((el, i) => {
-        const color = PP_COLORS[i] || '#ccc';
-        el.style.borderColor = (i === idx) ? color : 'transparent';
-        el.style.boxShadow = (i === idx) ? `0 4px 12px ${color}44` : 'none';
-    });
-    const color = PP_COLORS[idx] || '#667eea';
-    const d = ppData[cat];
-    if (!d) return;
-    const maxC = d.items.length > 0 ? Math.max(...d.items.map(i => i.count)) : 1;
-    document.getElementById('pp-detail-icon').textContent = PP_ICONS[cat] || '📌';
-    document.getElementById('pp-detail-name').textContent = cat;
-    document.getElementById('pp-detail-badge').textContent = `${d.total}件 / ${d.items.length}バリア`;
-    document.getElementById('pp-detail-badge').style.background = color;
-    let h = '';
-    d.items.forEach(item => {
-        const w = maxC > 0 ? (item.count / maxC * 100) : 0;
-        h += `<div style="display:flex;align-items:center;padding:8px 10px;margin-bottom:5px;border-radius:7px;border:1px solid #e2e8f0;gap:8px">
-            <span style="font-size:12px;color:#2d3748;flex:1;line-height:1.4">${item.barrier}</span>
-            <div style="width:70px;flex-shrink:0"><div style="background:#e2e8f0;border-radius:3px;height:5px;overflow:hidden"><div style="width:${w}%;height:100%;background:${color};border-radius:3px"></div></div></div>
-            <span style="font-size:11px;font-weight:700;min-width:24px;text-align:center;padding:2px 6px;border-radius:8px;color:#fff;background:${color}">${item.count}</span>
-        </div>`;
-    });
-    document.getElementById('pp-detail-body').innerHTML = h || '<div class="empty">データなし</div>';
-    if (ppChart) {
-        const cats = Object.keys(ppData);
-        ppChart.data.datasets[0].offset = cats.map((_, i) => i === idx ? 18 : 0);
-        ppChart.update();
-    }
-}
-
-// ===== EC改善レポート =====
-function updateEcReport() {
-    try {
-        // バリア件数集計（ページ別）
-        const pageBarrierMap = {};
-        let totalBarrier = 0;
-        allData.forEach(r => {
-            const barrier = getField(r,'BARRIER_SHORT');
-            if (!barrier || NO_ISSUE_KEYWORDS.some(k => barrier.includes(k))) return;
-            splitVal(getField(r,'PAGE')).forEach(pg => {
-                if (!pg || pg === '不明') return;
-                if (!pageBarrierMap[pg]) pageBarrierMap[pg] = {total:0, barriers:{}};
-                splitVal(barrier).forEach(b => {
-                    if (b && !NO_ISSUE_KEYWORDS.some(k => b.includes(k))) {
-                        pageBarrierMap[pg].total++;
-                        pageBarrierMap[pg].barriers[b] = (pageBarrierMap[pg].barriers[b]||0)+1;
-                        totalBarrier++;
-                    }
+        // CSVファイルを読み込む
+        async function loadData() {
+            try {
+                // 通話データを読み込み
+                const callResponse = await fetch('all_merged.csv');
+                if (!callResponse.ok) throw new Error('通話データが見つかりません');
+                
+                const callText = await callResponse.text();
+                const callParsed = Papa.parse(callText, { 
+                    header: true, 
+                    skipEmptyLines: true,
+                    encoding: 'UTF-8'
                 });
-            });
-        });
+                
+                allData.calls = callParsed.data.map(row => ({
+                    ...row,
+                    _source: 'call'  // データソースを識別
+                }));
 
-        const pageList = Object.entries(pageBarrierMap).sort((a,b) => b[1].total - a[1].total);
-        const highUrgCount = allData.filter(r => splitVal(getField(r,'URGENCY')).includes('高')).length;
+                // フォームデータも試しに読み込む（なければスキップ）
+                try {
+                    const formResponse = await fetch('form_merged.csv');
+                    if (formResponse.ok) {
+                        const formText = await formResponse.text();
+                        const formParsed = Papa.parse(formText, { 
+                            header: true, 
+                            skipEmptyLines: true,
+                            encoding: 'UTF-8'
+                        });
+                        allData.forms = formParsed.data.map(row => ({
+                            ...row,
+                            _source: 'form'
+                        }));
+                        updateDataSourceIndicator(true);
+                    }
+                } catch (e) {
+                    console.log('フォームデータはまだありません');
+                }
 
-        // KPI更新
-        document.getElementById('ec-kpi-total').textContent = totalBarrier.toLocaleString();
-        document.getElementById('ec-kpi-pages').textContent = pageList.length;
-        document.getElementById('ec-kpi-high').textContent = highUrgCount.toLocaleString();
-
-        // 施策カード生成
-        function buildCards(measures, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            let html = '';
-            measures.forEach(m => {
-                // VOCデータから関連キーワードで件数を集計
-                const relatedCount = allData.filter(r => {
-                    const b = getField(r,'BARRIER_SHORT') + getField(r,'INTENT_SHORT') + getField(r,'PAGE');
-                    return m.keyword.split(';').some(k => b.includes(k));
-                }).length;
-                const pClass = m.priority === '高' ? 'measure-header-high' : m.priority === '中' ? 'measure-header-mid' : 'measure-header-low';
-                html += `<div class="measure-card">
-                    <div class="measure-header ${pClass}">
-                        <div class="measure-page">${m.icon} ${m.page}</div>
-                        <div class="measure-priority">優先度: ${m.priority}</div>
-                    </div>
-                    <div class="measure-body">
-                        <div class="measure-count">${relatedCount.toLocaleString()}<span style="font-size:14px;font-weight:500;color:#95a5a6"> 件</span></div>
-                        <div class="measure-count-label">関連VOC件数（自動集計）</div>
-                        <div class="measure-row">
-                            <span class="measure-label label-situation">状況</span>
-                            <span class="measure-text">${m.situation}</span>
-                        </div>
-                        <div class="measure-row">
-                            <span class="measure-label label-measure">施策</span>
-                            <span class="measure-text">${m.measure}</span>
-                        </div>
-                        <div class="measure-row">
-                            <span class="measure-label label-effect">効果</span>
-                            <span class="measure-text">${m.effect}</span>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
+                // データを統合
+                filteredData = [...allData.calls, ...allData.forms];
+                
+                // ダッシュボードを更新
+                renderKPIs();
+                renderCharts();
+                renderOperators();
+                renderTable();
+                populateFilters();
+            } catch (error) {
+                console.error('データ読み込みエラー:', error);
+                document.getElementById('kpiSection').innerHTML = `<div class="error">データの読み込みに失敗しました: ${error.message}</div>`;
+            }
         }
 
-        buildCards(EC_MEASURES.site, 'ec-site-cards');
-        buildCards(EC_MEASURES.product, 'ec-product-cards');
-        buildCards(EC_MEASURES.op, 'ec-op-cards');
+        // データソースインジケーターを更新
+        function updateDataSourceIndicator(hasFormData) {
+            const indicator = document.getElementById('dataSourceIndicator');
+            if (hasFormData) {
+                indicator.textContent = '📞 通話 + 📝 フォームデータ';
+            } else {
+                indicator.textContent = '📞 通話データのみ';
+            }
+        }
 
-        // ページ別詳細分析
-        const top15 = pageList.slice(0,15).reverse();
-        destroyChart('page-barrier');
-        charts['page-barrier'] = new Chart(document.getElementById('chart-page-barrier'), {
-            type:'bar',
-            data:{ labels:top15.map(d=>d[0]), datasets:[{label:'バリア件数',data:top15.map(d=>d[1].total),backgroundColor:'#667eea'}]},
-            options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-        });
+        // KPIを描画
+        function renderKPIs() {
+            const totalRecords = filteredData.length;
+            const callRecords = allData.calls.length;
+            const formRecords = allData.forms.length;
+            
+            // 緊急度の集計
+            const urgencyCount = {
+                '高': 0,
+                '中': 0,
+                '低': 0
+            };
+            filteredData.forEach(row => {
+                const urg = row['緊急度'] || '不明';
+                if (urgencyCount[urg] !== undefined) urgencyCount[urg]++;
+            });
 
-        // ページ別詳細テーブル
-        let thtml = '<table class="page-barrier-table"><thead><tr><th>#</th><th>推定発生ページ</th><th>バリア件数</th><th>主なバリア</th></tr></thead><tbody>';
-        pageList.slice(0,20).forEach((([pg, data], i) => {
-            const topBarrier = Object.entries(data.barriers).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([b,c]) => `${b}(${c})`).join(' / ');
-            const maxBar = pageList[0][1].total;
-            const w = maxBar > 0 ? (data.total/maxBar*100).toFixed(0) : 0;
-            thtml += `<tr>
-                <td><strong>${i+1}</strong></td>
-                <td><strong>${pg}</strong></td>
-                <td>
-                    <div class="progress-bar-wrap">
-                        <div class="progress-bar"><div class="progress-fill" style="width:${w}%"></div></div>
-                        <span style="font-size:13px;font-weight:700;min-width:36px">${data.total}</span>
+            // 自己解決可能性
+            const selfResolvable = filteredData.filter(row => row['Web自己解決可能性'] === '高').length;
+            const selfResolvableRate = totalRecords > 0 ? ((selfResolvable / totalRecords) * 100).toFixed(1) : 0;
+
+            // ユニークオペレーター数（通話データのみ）
+            const uniqueOps = new Set(allData.calls.map(row => row['オペレーター名']).filter(op => op && op !== '不明'));
+
+            const kpiHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">総レコード数</div>
+                        <div class="kpi-value">${totalRecords.toLocaleString()}</div>
                     </div>
-                </td>
-                <td style="font-size:12px;color:#555">${topBarrier}</td>
-            </tr>`;
-        }));
-        thtml += '</tbody></table>';
-        document.getElementById('page-barrier-detail').innerHTML = thtml;
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📞</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">通話データ</div>
+                        <div class="kpi-value">${callRecords.toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📝</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">フォームデータ</div>
+                        <div class="kpi-value">${formRecords.toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">緊急度：高</div>
+                        <div class="kpi-value">${urgencyCount['高'].toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">✅</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">自己解決可能率</div>
+                        <div class="kpi-value">${selfResolvableRate}%</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">👥</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">オペレーター数</div>
+                        <div class="kpi-value">${uniqueOps.size}</div>
+                    </div>
+                </div>
+            `;
 
-    } catch(e) { console.error('ec report', e); }
-}
+            document.getElementById('kpiSection').innerHTML = kpiHTML;
+        }
 
-// ===== EC改善タブ切り替え =====
-function showEcTab(id, btn) {
-    document.querySelectorAll('.ec-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.ec-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
-    // ページ別タブの場合はチャートを再描画
-    if (id === 'ec-page') { setTimeout(() => { if(charts['page-barrier']) charts['page-barrier'].update(); }, 100); }
-}
+        // チャートを描画
+        function renderCharts() {
+            const chartsHTML = `
+                <div class="chart-container">
+                    <h2>大区分別件数</h2>
+                    <canvas id="overviewMajorChart" style="height: 300px;"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>緊急度分布</h2>
+                    <canvas id="urgencyChart" style="height: 300px;"></canvas>
+                </div>
+                <div class="chart-container chart-full">
+                    <h2>日別問い合わせ件数推移</h2>
+                    <canvas id="timeSeriesChart" style="height: 250px;"></canvas>
+                </div>
+            `;
+            document.getElementById('chartsSection').innerHTML = chartsHTML;
 
-// ===== CSVエクスポート =====
-function exportCSV() {
-    const headers = ['日時','ソース','顧客属性','問い合わせ元サイト','大区分NO','大区分名','小区分NO','小区分名','ユーザーの意図(Intent)','意図要約(短)','対象機能','Webサイトのバリア','バリア要約','Web自己解決可能性','推定発生ページ','発生タイミング','WEBオーダー番号','商品の注文番号','商品名','緊急度','解決ステータス','オペレーター名','OP総合評価','問い合わせ要約','顧客の生の声','商品カテゴリ'];
-    const rows = filteredData2.map(r => [
-        getField(r,'DATE'), r._source||'通話', getField(r,'CU_ATTR'), getField(r,'SITE'),
-        getField(r,'CAT_NO'), getField(r,'CAT'), getField(r,'SUBCAT_NO'), getField(r,'SUBCAT'),
-        getField(r,'INTENT'), getField(r,'INTENT_SHORT'), getField(r,'FUNC'),
-        getField(r,'BARRIER'), getField(r,'BARRIER_SHORT'), getField(r,'SELF_SOLVE'),
-        getField(r,'PAGE'), getField(r,'TIMING'), getField(r,'WEB_ORDER'), getField(r,'ORDER_NO'),
-        getField(r,'PRODUCT'), getField(r,'URGENCY'), getField(r,'RESOLVE'), getField(r,'OP'),
-        getField(r,'OP_TOTAL'), getField(r,'SUMMARY'), getField(r,'VOICE'), getField(r,'PRODUCT_CAT')
-    ]);
-    const csv = [headers, ...rows].map(r => r.map(v => '"'+(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
-    const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'voc_export.csv';
-    a.click();
-}
+            // 大区分別チャート
+            const majorCategories = {};
+            filteredData.forEach(row => {
+                const cat = row['大区分名'] || '不明';
+                majorCategories[cat] = (majorCategories[cat] || 0) + 1;
+            });
+            const majorSorted = Object.entries(majorCategories).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            
+            charts.overviewMajor = new Chart(document.getElementById('overviewMajorChart'), {
+                type: 'bar',
+                data: {
+                    labels: majorSorted.map(x => x[0]),
+                    datasets: [{
+                        label: '件数',
+                        data: majorSorted.map(x => x[1]),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
 
-// ===== タブ切り替え =====
-function showTab(id, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
-}
+            // 緊急度チャート
+            const urgencyData = {
+                '高': 0,
+                '中': 0,
+                '低': 0,
+                '不明': 0
+            };
+            filteredData.forEach(row => {
+                const urg = row['緊急度'] || '不明';
+                if (urgencyData[urg] !== undefined) {
+                    urgencyData[urg]++;
+                } else {
+                    urgencyData['不明']++;
+                }
+            });
 
-// ===== 起動時自動読み込み =====
-window.addEventListener('load', () => {
-    document.getElementById('uploadArea').style.display = 'block';
-    document.getElementById('errorArea').style.display = 'none';
-    fetch('./data/all_merged.csv?v=' + Date.now())
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
-        .then(b => {
-            document.getElementById('uploadArea').style.display = 'none';
-            parseCSV(new File([b], 'all_merged.csv'));
-        })
-        .catch(e => {
-            console.error('CSV読み込み失敗:', e);
-            document.getElementById('uploadArea').style.display = 'none';
-            document.getElementById('errorArea').style.display = 'block';
-            const s = document.getElementById('dataStatus');
-            if(s){ s.textContent = '⚠️ データなし'; s.style.background='rgba(255,100,100,0.3)'; }
+            charts.urgency = new Chart(document.getElementById('urgencyChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(urgencyData),
+                    datasets: [{
+                        data: Object.values(urgencyData),
+                        backgroundColor: ['#e74c3c', '#f39c12', '#3498db', '#95a5a6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 日別推移チャート
+            const dateField = filteredData[0]._source === 'call' ? '通話日時' : 'お問い合わせ日';
+            const dailyCounts = {};
+            filteredData.forEach(row => {
+                const dateStr = row[dateField] || row['通話日時'] || row['お問い合わせ日'] || '';
+                const date = dateStr.split(' ')[0];
+                if (date) {
+                    dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+                }
+            });
+            const sortedDates = Object.keys(dailyCounts).sort();
+            const last30Dates = sortedDates.slice(-30);
+
+            charts.timeSeries = new Chart(document.getElementById('timeSeriesChart'), {
+                type: 'line',
+                data: {
+                    labels: last30Dates,
+                    datasets: [{
+                        label: '問い合わせ件数',
+                        data: last30Dates.map(d => dailyCounts[d]),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // カテゴリタブのチャート
+            renderCategoryCharts();
+        }
+
+        // カテゴリチャートを描画
+        function renderCategoryCharts() {
+            // 大区分
+            const majorCategories = {};
+            filteredData.forEach(row => {
+                const cat = row['大区分名'] || '不明';
+                majorCategories[cat] = (majorCategories[cat] || 0) + 1;
+            });
+            const majorSorted = Object.entries(majorCategories).sort((a, b) => b[1] - a[1]);
+
+            if (charts.majorCategory) charts.majorCategory.destroy();
+            charts.majorCategory = new Chart(document.getElementById('majorCategoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: majorSorted.map(x => x[0]),
+                    datasets: [{
+                        label: '件数',
+                        data: majorSorted.map(x => x[1]),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // 小区分TOP20
+            const minorCategories = {};
+            filteredData.forEach(row => {
+                const cat = row['小区分名'] || '不明';
+                minorCategories[cat] = (minorCategories[cat] || 0) + 1;
+            });
+            const minorSorted = Object.entries(minorCategories).sort((a, b) => b[1] - a[1]).slice(0, 20);
+
+            if (charts.minorCategory) charts.minorCategory.destroy();
+            charts.minorCategory = new Chart(document.getElementById('minorCategoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: minorSorted.map(x => x[0]),
+                    datasets: [{
+                        label: '件数',
+                        data: minorSorted.map(x => x[1]),
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Intent分析
+            const intents = {};
+            filteredData.forEach(row => {
+                const intent = row['ユーザーの意図(Intent)'] || '不明';
+                intents[intent] = (intents[intent] || 0) + 1;
+            });
+            const intentSorted = Object.entries(intents).sort((a, b) => b[1] - a[1]).slice(0, 15);
+
+            if (charts.intent) charts.intent.destroy();
+            charts.intent = new Chart(document.getElementById('intentChart'), {
+                type: 'bar',
+                data: {
+                    labels: intentSorted.map(x => x[0]),
+                    datasets: [{
+                        label: '件数',
+                        data: intentSorted.map(x => x[1]),
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Barrier分析
+            const barriers = {};
+            filteredData.forEach(row => {
+                const barrier = row['Webサイトのバリア(Barrier)'] || '不明';
+                if (barrier !== 'なし' && barrier !== '不明') {
+                    barriers[barrier] = (barriers[barrier] || 0) + 1;
+                }
+            });
+            const barrierSorted = Object.entries(barriers).sort((a, b) => b[1] - a[1]).slice(0, 15);
+
+            if (charts.barrier) charts.barrier.destroy();
+            charts.barrier = new Chart(document.getElementById('barrierChart'), {
+                type: 'bar',
+                data: {
+                    labels: barrierSorted.map(x => x[0]),
+                    datasets: [{
+                        label: '件数',
+                        data: barrierSorted.map(x => x[1]),
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // オペレーター分析を描画
+        function renderOperators() {
+            const sortBy = document.getElementById('opSortBy').value;
+            const operators = {};
+
+            // 通話データのみからオペレーター情報を集計
+            allData.calls.forEach(row => {
+                const opName = row['オペレーター名'];
+                if (!opName || opName === '不明') return;
+
+                if (!operators[opName]) {
+                    operators[opName] = {
+                        name: opName,
+                        count: 0,
+                        totalScore: 0,
+                        knowledge: 0,
+                        system: 0,
+                        clarity: 0,
+                        empathy: 0,
+                        listening: 0,
+                        scores: []
+                    };
+                }
+
+                operators[opName].count++;
+                const overallScore = parseFloat(row['OP総合評価']) || 0;
+                operators[opName].totalScore += overallScore;
+                operators[opName].knowledge += parseFloat(row['OP知識正確性']) || 0;
+                operators[opName].system += parseFloat(row['OPシステム操作']) || 0;
+                operators[opName].clarity += parseFloat(row['OP説明分かりやすさ']) || 0;
+                operators[opName].empathy += parseFloat(row['OP共感・寄り添い']) || 0;
+                operators[opName].listening += parseFloat(row['OP傾聴姿勢']) || 0;
+            });
+
+            // 平均を計算
+            Object.values(operators).forEach(op => {
+                if (op.count > 0) {
+                    op.avgScore = op.totalScore / op.count;
+                    op.avgKnowledge = op.knowledge / op.count;
+                    op.avgSystem = op.system / op.count;
+                    op.avgClarity = op.clarity / op.count;
+                    op.avgEmpathy = op.empathy / op.count;
+                    op.avgListening = op.listening / op.count;
+                }
+            });
+
+            // ソート
+            let opArray = Object.values(operators);
+            switch(sortBy) {
+                case 'count':
+                    opArray.sort((a, b) => b.count - a.count);
+                    break;
+                case 'avgScore':
+                    opArray.sort((a, b) => b.avgScore - a.avgScore);
+                    break;
+                case 'knowledge':
+                    opArray.sort((a, b) => b.avgKnowledge - a.avgKnowledge);
+                    break;
+                case 'system':
+                    opArray.sort((a, b) => b.avgSystem - a.avgSystem);
+                    break;
+                case 'clarity':
+                    opArray.sort((a, b) => b.avgClarity - a.avgClarity);
+                    break;
+            }
+
+            const opHTML = opArray.map(op => `
+                <div class="op-card">
+                    <div class="op-name">${op.name}</div>
+                    <div class="op-stats">
+                        <div>
+                            <div class="op-stat-label">対応件数</div>
+                            <div class="op-stat-value">${op.count}</div>
+                        </div>
+                        <div>
+                            <div class="op-stat-label">平均スコア</div>
+                            <div class="op-stat-value">${op.avgScore.toFixed(1)}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <div style="font-size: 11px; color: #888; margin-bottom: 4px;">知識正確性: ${op.avgKnowledge.toFixed(1)}</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${(op.avgKnowledge / 5) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <div style="font-size: 11px; color: #888; margin-bottom: 4px;">説明分かりやすさ: ${op.avgClarity.toFixed(1)}</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${(op.avgClarity / 5) * 100}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('operatorGrid').innerHTML = opHTML || '<div class="loading">オペレーターデータがありません</div>';
+        }
+
+        // テーブルを描画
+        function renderTable() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredData.slice(start, end);
+
+            const rows = pageData.map(row => {
+                const id = row['通話ID'] || row['問い合わせID'] || '';
+                const dateTime = row['通話日時'] || row['お問い合わせ日'] || '';
+                const source = row._source === 'call' ? '通話' : 'フォーム';
+                const majorCat = row['大区分名'] || '';
+                const minorCat = row['小区分名'] || '';
+                const intent = row['ユーザーの意図(Intent)'] || '';
+                const urgency = row['緊急度'] || '';
+                const summary = row['会話要約'] || row['問い合わせ要約'] || '';
+
+                let urgencyBadge = '';
+                if (urgency === '高') urgencyBadge = '<span class="badge badge-high">高</span>';
+                else if (urgency === '中') urgencyBadge = '<span class="badge badge-mid">中</span>';
+                else if (urgency === '低') urgencyBadge = '<span class="badge badge-low">低</span>';
+
+                const sourceBadge = source === '通話' 
+                    ? '<span class="data-source-badge source-call">📞 通話</span>'
+                    : '<span class="data-source-badge source-form">📝 フォーム</span>';
+
+                return `
+                    <tr class="clickable" onclick='showDetail(${JSON.stringify(row)})'>
+                        <td>${id}</td>
+                        <td>${dateTime}</td>
+                        <td>${sourceBadge}</td>
+                        <td>${majorCat}</td>
+                        <td>${minorCat}</td>
+                        <td>${intent.substring(0, 30)}${intent.length > 30 ? '...' : ''}</td>
+                        <td>${urgencyBadge}</td>
+                        <td>${summary.substring(0, 50)}${summary.length > 50 ? '...' : ''}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('dataTableBody').innerHTML = rows || '<tr><td colspan="8">データがありません</td></tr>';
+            document.getElementById('recordCount').textContent = filteredData.length;
+
+            renderPagination();
+        }
+
+        // ページネーションを描画
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            let paginationHTML = '';
+
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">前へ</button>`;
+            }
+
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">次へ</button>`;
+            }
+
+            document.getElementById('pagination').innerHTML = paginationHTML;
+        }
+
+        // ページ変更
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        // フィルターを適用
+        function applyFilters() {
+            const dataSourceFilter = document.getElementById('filterDataSource').value;
+            const majorCatFilter = document.getElementById('filterMajorCategory').value;
+            const urgencyFilter = document.getElementById('filterUrgency').value;
+            const keywordFilter = document.getElementById('filterKeyword').value.toLowerCase();
+
+            filteredData = [...allData.calls, ...allData.forms].filter(row => {
+                // データソースフィルター
+                if (dataSourceFilter !== 'all' && row._source !== dataSourceFilter) return false;
+
+                // 大区分フィルター
+                if (majorCatFilter && row['大区分名'] !== majorCatFilter) return false;
+
+                // 緊急度フィルター
+                if (urgencyFilter && row['緊急度'] !== urgencyFilter) return false;
+
+                // キーワードフィルター
+                if (keywordFilter) {
+                    const searchFields = [
+                        row['会話要約'] || '',
+                        row['問い合わせ要約'] || '',
+                        row['ユーザーの意図(Intent)'] || '',
+                        row['小区分名'] || '',
+                        row['重要キーワード'] || ''
+                    ];
+                    if (!searchFields.some(field => field.toLowerCase().includes(keywordFilter))) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // フィルターをリセット
+        function resetFilters() {
+            document.getElementById('filterDataSource').value = 'all';
+            document.getElementById('filterMajorCategory').value = '';
+            document.getElementById('filterUrgency').value = '';
+            document.getElementById('filterKeyword').value = '';
+            applyFilters();
+        }
+
+        // フィルター選択肢を設定
+        function populateFilters() {
+            const majorCategories = new Set();
+            filteredData.forEach(row => {
+                const cat = row['大区分名'];
+                if (cat) majorCategories.add(cat);
+            });
+
+            const majorCatSelect = document.getElementById('filterMajorCategory');
+            majorCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                majorCatSelect.appendChild(option);
+            });
+        }
+
+        // 詳細モーダルを表示
+        function showDetail(row) {
+            const isCall = row._source === 'call';
+            
+            document.getElementById('modalTitle').textContent = isCall ? '通話詳細' : 'フォーム問い合わせ詳細';
+
+            const fields = isCall ? [
+                { label: '通話ID', value: row['通話ID'] },
+                { label: '通話日時', value: row['通話日時'] },
+                { label: 'オペレーター名', value: row['オペレーター名'] },
+                { label: '顧客属性', value: row['顧客属性'] },
+                { label: '大区分', value: row['大区分名'] },
+                { label: '小区分', value: row['小区分名'] },
+                { label: 'Intent', value: row['ユーザーの意図(Intent)'] },
+                { label: 'Barrier', value: row['Webサイトのバリア(Barrier)'] },
+                { label: '緊急度', value: row['緊急度'] },
+                { label: '自己解決可能性', value: row['Web自己解決可能性'] },
+                { label: 'OP総合評価', value: row['OP総合評価'] },
+                { label: 'OP知識正確性', value: row['OP知識正確性'] }
+            ] : [
+                { label: '問い合わせID', value: row['問い合わせID'] },
+                { label: 'お問い合わせ日', value: row['お問い合わせ日'] },
+                { label: '顧客属性', value: row['顧客属性'] },
+                { label: '大区分', value: row['大区分名'] },
+                { label: '小区分', value: row['小区分名'] },
+                { label: 'Intent', value: row['ユーザーの意図(Intent)'] },
+                { label: 'Barrier', value: row['Webサイトのバリア(Barrier)'] },
+                { label: '緊急度', value: row['緊急度'] },
+                { label: '自己解決可能性', value: row['Web自己解決可能性'] }
+            ];
+
+            const fieldsHTML = fields.map(f => `
+                <div class="modal-field">
+                    <label>${f.label}</label>
+                    <span>${f.value || '不明'}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('modalFields').innerHTML = fieldsHTML;
+            
+            const conversation = row['会話全文(整形済)'] || row['本文(整形済)'] || row['会話要約'] || row['問い合わせ要約'] || 'データなし';
+            document.getElementById('modalConversation').textContent = conversation;
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // モーダルを閉じる
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // タブ切り替え
+        function switchTab(tabName) {
+            // タブボタンのアクティブ状態を切り替え
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // タブコンテンツを切り替え
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
         });
-});
-</script>
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
 </body>
 </html>
